@@ -30,20 +30,21 @@ Please follow the instructions below to complete the technical assessment:
  (Configure this in your /etc/hosts file, e.g., 127.0.0.1 test.mgt.com)
 
 ### 4. Redis Configuration
+
 - Install Redis Server.
 
 - Configure Magento to use Redis for both:
- 
-                                    - Cache storage
+  - Cache storage
 
-                                    - Session storage
+  - Session storage
 
 ### 5. Permissions and User Configuration
+
 - Change ownership of all Magento files and folders to:
 
-                                    - User: test-ssh
+  - User: test-ssh
 
-                                    - Group: clp
+  - Group: clp
 
 - Configure NGINX to run as user test-ssh.
 
