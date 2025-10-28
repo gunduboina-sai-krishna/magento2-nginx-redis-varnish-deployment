@@ -5,7 +5,7 @@ variable "instance_name" {
 
 variable "key_pair" {
     type = string
-    default = "DevOps"  
+    default = "devops"  
 }
 
 variable "ami" {
