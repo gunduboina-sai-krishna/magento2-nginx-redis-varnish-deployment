@@ -6,7 +6,7 @@ magento_domain: test.mgt.com
 php_fpm_pool: magento
 mysql_magento_db: magento
 mysql_magento_user: magento_user
-elasticsearch_version: 8.x
+elasticsearch_version: "8.x"
 php_version: "8.3"
 redis_port: 6379
 varnish_port: 6081

@@ -1,0 +1,56 @@
+---
+# Validate & Add PHP Sury and Elasticsearch repos
+
+- name: Ensure prerequisite packages installed for repo management
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - lsb-release
+      - gnupg
+    state: present
+    update_cache: yes
+
+# PHP Sury Repository
+
+- name: Check if PHP Sury repo is exists
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/php-sury.list
+  register: php_repo_check
+
+- name: Add PHP Sury GPG Key
+  ansible.builtin.apt_key:
+    url: https://packages.sury.org/php/apt.gpg
+    state: present
+  when: not php_repo_check.stat.exists
+
+- name: Add PHP Sury Repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://packages.sury.org/php/ {{ ansible_distribution_release }} main"
+    filename: php-sury
+    state: present
+  when: not php_repo_check.stat.exists
+
+# Elasticsearch Repository
+
+- name: Check if Elasticsearch repo exists
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/elasticsearch-{{ elastic_version }}.list
+  register: es_repo_check
+
+- name: Add Elasticsearch GPG Key
+  ansible.builtin.apt_key:
+    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+    state: present
+  when: not es_repo_check.stat.exists
+
+- name: Add Elasticsearch Repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/{{ elastic_version }}/apt stable main"
+    filename: "elasticsearch-{{ elastic_version }}"
+    state: present
+  when: not es_repo_check.stat.exists
+
+- name: Apt Update after repo changes
+  apt:
+    update_cache: yes
