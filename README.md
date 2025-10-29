@@ -65,3 +65,10 @@ Please follow the instructions below to complete the technical assessment:
 - Install Varnish.
 
 - Configure it to work with Magento for full-page caching.
+
+
+## NOTES:
+- **Redis:** port - 6379 (TCP)
+- **Varnish: Default ports** 
+  - 6081: This is the default port for Varnish to listen for incoming HTTP traffic.
+  - 6082: This port is used for the Varnish administration console, varnishadm
