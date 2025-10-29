@@ -1,0 +1,38 @@
+- name: Check if magento group exists
+  ansible.builtin.getent:
+    database: group
+    key: "{{ magento_group }}"
+  register: group_check
+
+- name: Create magento group if not exists
+  ansible.builtin.group:
+    name: "{{ magento_group }}"
+    state: present
+  when: group_check.failed or group_check.entries is not defined
+
+- name: Check if magento_user exists
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ magento_user }}"
+  register: user_check
+
+- name: Create magento user if not exists
+  ansible.builtin.user:
+    name: "{{ magento_user }}"
+    group: "{{ magento_group }}"
+    append: yes
+    shell: /bin/bash
+    home: "{{ magento_home }}"
+    create_home: yes
+    state: present
+  when: user_check.failed or user_check.entries is not defined
+
+- name: Set permissions on home directory
+  ansible.builtin.file:
+    path: "{{ magento_home }}"
+    owner: "{{ magento_user }}"
+    group: "{{ magento_group }}"
+    state: directory
+    mode: '0750'
+    
+    

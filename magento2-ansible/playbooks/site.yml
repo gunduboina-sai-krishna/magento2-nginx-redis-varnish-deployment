@@ -1,0 +1,17 @@
+
+- name: Magento2 Web App
+  hosts: magento2
+  become: true
+  roles:
+    - common
+    - users
+    - php
+    - mysql
+    - elasticsearch
+    - redis
+    - varnish
+    - nginx
+    - certs
+    - magento
+    - phpmyadmin
+
