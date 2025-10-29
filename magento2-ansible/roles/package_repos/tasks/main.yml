@@ -52,5 +52,5 @@
   when: not es_repo_check.stat.exists
 
 - name: Apt Update after repo changes
-  apt:
+  ansible.builtin.apt:
     update_cache: yes
