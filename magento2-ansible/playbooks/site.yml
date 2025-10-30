@@ -2,7 +2,7 @@
 - name: Magento2 Web App
   hosts: magento2
   become: true
-  var_files:
+  vars_files:
     - ../group_vars/commonvars.yml
     - ../group_vars/secretvars.yml
   roles:
