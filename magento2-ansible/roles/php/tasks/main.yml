@@ -1,0 +1,38 @@
+# installing PHP and PHP-FPM 
+---
+- name: Check if php core packages are already installed
+  ansible.builtin.shell: |
+    dpkg -l | grep -E "php{{ php_version }}-(fpm|cli)"
+  register: php_package_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Install PHP and extensions
+  ansible.builtin.apt:
+    name:
+    - php{{ php_version }}-fpm
+    - php{{ php_version }}-cli
+    - php{{ php_version }}-mysql
+    - php{{ php_version }}-xml
+    - php{{ php_version }}-gd
+    - php{{ php_version }}-mbstring
+    - php{{ php_version }}-curl
+    - php{{ php_version }}-intl
+    - php{{ php_version }}-zip
+    - php{{ php_version }}-bcmath
+    - php{{ php_version }}-opcache
+    - php-redis
+    state: present
+    update_cache: yes
+  when: php_package_check.rc != 0  
+  notify: restart php-fpm
+
+- name: Install PHP-FPM pool file for magento2
+  ansible.builtin.template:
+    src: php-fpm-magento2.conf.j2
+    dest: /etc/php/{{ php_version }}/fpm/pool.d/magento2.conf
+    owner: "{{ magento2_user }}"
+    group: "{{ magento2_group }}"
+    mode: '0644'
+  notify: restart php-fpm  
+    

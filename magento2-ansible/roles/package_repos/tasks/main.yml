@@ -4,12 +4,17 @@
 - name: Ensure prerequisite packages installed for repo management
   ansible.builtin.apt:
     name:
+      - curl
+      - wget
+      - unzip
       - apt-transport-https
       - ca-certificates
       - lsb-release
       - gnupg
+      - software-properties-common
     state: present
     update_cache: yes
+    cache_valid_time: 3600
 
 # PHP Sury Repository
 

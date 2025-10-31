@@ -11,3 +11,6 @@ php_version: "8.3"
 redis_port: 6379
 varnish_port: 6081
 composer_home: /tmp/composer
+mysql_version: "8.0"
+mysql_service_name: "mysql"
+mysql_config_file: "/etc/mysql/conf.d/magento2.cnf"

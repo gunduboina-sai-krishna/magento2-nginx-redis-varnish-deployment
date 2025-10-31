@@ -1,0 +1,84 @@
+---
+---
+# MySQL 8 installation and configuration for magento2
+
+- name: Add MySQL APT repository
+  ansible.builtin.apt_key:
+    url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
+    state: present
+
+- name: Add MySQL 8 APT repo source list
+  ansible.builtin.apt_repository:
+    repo: "deb http://repo.mysql.com/apt/debian bookworm mysql-8.0"
+    state: present
+    filename: mysql
+
+- name: Install MySQL 8 server and client
+  ansible.builtin.apt:
+    name:
+      - mysql-server
+      - mysql-client
+      - python3-pymysql
+    state: present
+    update_cache: yes
+
+- name: Ensure MySQL service is running and enabled
+  ansible.builtin.service:
+    name: mysql
+    state: started
+    enabled: true
+
+# Secure MySQL installation
+- name: Secure MySQL installation
+  community.mysql.mysql_secure_installation:
+    login_user: root
+    login_password: ''
+    root_password: "{{ mysql_root_password }}"
+    change_root_password: true
+    remove_anonymous_user: true
+    disallow_root_login_remotely: true
+    remove_test_db: true
+    state: present
+  register: secure_mysql
+  ignore_errors: true
+  changed_when: "'already' not in secure_mysql.msg | default('')"
+
+# Create magento2 database
+- name: Create magento2 database
+  community.mysql.mysql_db:
+    name: "{{ mysql_magento2_db }}"
+    encoding: utf8mb4
+    collation: utf8mb4_unicode_ci
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+
+# Create magento2 DB user
+- name: Create magento2 DB user
+  community.mysql.mysql_user:
+    name: "{{ mysql_magento2_user }}"
+    password: "{{ mysql_magento2_password }}"
+    priv: "{{ mysql_magento2_db }}.*:ALL"
+    host: localhost
+    state: present
+    append_privs: yes
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+
+# Optimize MySQL for magento2
+- name: Deploy optimized MySQL configuration for magento2
+  ansible.builtin.template:
+    src: magento2.cnf.j2
+    dest: /etc/mysql/conf.d/magento2.cnf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart mysql
+
+# Optional validation
+- name: Validate MySQL connectivity
+  community.mysql.mysql_info:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  register: mysql_info
+  changed_when: false
