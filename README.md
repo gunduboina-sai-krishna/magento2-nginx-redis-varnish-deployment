@@ -72,3 +72,14 @@ Please follow the instructions below to complete the technical assessment:
 - **Varnish: Default ports** 
   - 6081: This is the default port for Varnish to listen for incoming HTTP traffic.
   - 6082: This port is used for the Varnish administration console, varnishadm
+
+## version:
+| Component     | Version        |
+| ------------- | -------------- |
+| Elasticsearch | **7.17.21** ✅  |
+| Redis         | 7.2.x          |
+| MySQL         | 8.0.x          |
+| Nginx         | 1.26+          |
+| PHP           | 8.3            |
+| Magento       | 2.4.7 or 2.4.8 |
+
