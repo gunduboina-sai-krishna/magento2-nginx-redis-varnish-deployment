@@ -1,0 +1,49 @@
+---
+- name: Install PHPMyAdmin package
+  ansible.builtin.apt:
+    name: phpmyadmin
+    state: present
+  become: true
+
+- name: Create phpMyAdmin directory under web root
+  ansible.builtin.file:
+    path: /var/www/html/phpmyadmin
+    state: directory
+    owner: "{{ magento2_user }}"
+    group: "{{ magento2_group }}"
+    mode: '0755'
+
+- name: Link phpMyAdmin installation to web root
+  ansible.builtin.file:
+    src: /usr/share/phpmyadmin
+    dest: /var/www/html/phpmyadmin
+    state: link
+    force: yes
+
+- name: Configure NGINX for phpMyAdmin
+  ansible.builtin.template:
+    src: nginx_pma.conf.j2
+    dest: /etc/nginx/sites-available/phpmyadmin.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nginx
+
+- name: Enable phpMyAdmin site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/phpmyadmin.conf
+    dest: /etc/nginx/sites-enabled/phpmyadmin.conf
+    state: link
+  notify: reload nginx
+
+- name: Remove default nginx site if present
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: reload nginx
+
+- name: Ensure PHP-FPM is running
+  ansible.builtin.service:
+    name: "php{{ php_version }}-fpm"
+    state: started
+    enabled: yes

@@ -34,5 +34,5 @@
     owner: "{{ magento2_user }}"
     group: "{{ magento2_group }}"
     mode: '0644'
-  notify: restart php-fpm  
+  notify: restart php-fpm   
     

@@ -1,7 +1,0 @@
-# restart the php-fpm, if any configuration changes in php
-
-- name: restart php-fpm
-  ansible.builtin.service:
-    name: php"{{ php_version }}"-fpm
-    state: restarted
-    enabled: true

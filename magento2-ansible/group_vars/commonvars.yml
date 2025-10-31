@@ -1,12 +1,14 @@
 magento2_user: test-ssh
 magento2_group: clp
 magento2_home: "/home/{{ magento2_user }}"
-magento2_root: /var/www/magento2
-magento2_domain: test.mgt.com
+magento2_root: /var/www/html/magento2
+magento2_domain: http://test.mgt.com
 php_fpm_pool: magento2
 mysql_magento2_db: magento2
 mysql_magento2_user: magento2_user
 elasticsearch_version: "7.x"
+elasticsearch_host: 127.0.0.1
+elasticsearch_port: 9200
 php_version: "8.3"
 redis_port: 6379
 varnish_port: 6081
@@ -14,3 +16,8 @@ composer_home: /tmp/composer
 mysql_version: "8.0"
 mysql_service_name: "mysql"
 mysql_config_file: "/etc/mysql/conf.d/magento2.cnf"
+magento2_admin_firstname: Sai
+magento2_admin_lastname: Krishna
+magento2_admin_email: gunduboinasaikrishna@gmail.com
+magento2_admin_user: testadmin
+magento2_admin_password: TestAdmin@123

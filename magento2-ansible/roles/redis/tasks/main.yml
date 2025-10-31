@@ -1,0 +1,73 @@
+---
+
+#  Redis Installation
+
+- name: Check if Redis is already installed
+  ansible.builtin.shell: dpkg -l | grep redis-server
+  register: redis_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Install Redis Server (if not installed)
+  ansible.builtin.apt:
+    name: redis-server
+    state: present
+    update_cache: yes
+  when: redis_check.rc != 0
+
+
+#  Redis Configuration
+
+- name: Ensure Redis service is started and enabled
+  ansible.builtin.service:
+    name: redis-server
+    state: started
+    enabled: yes
+
+
+#  Verify Redis Port 
+
+- name: Wait for Redis port {{ redis_port }} to become open
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: "{{ redis_port }}"
+    timeout: 20
+    state: started
+
+
+#  Configure Magento with Redis
+
+- name: Configure Magento to use Redis for cache
+  ansible.builtin.command: >
+    bin/magento setup:config:set
+    --cache-backend=redis
+    --cache-backend-redis-server=127.0.0.1
+    --cache-backend-redis-port={{ redis_port }}
+  args:
+    chdir: "{{ magento_home }}"
+  become_user: "{{ magento_user }}"
+  register: cache_config
+  changed_when: "'Cache backend configuration is complete' in cache_config.stdout"
+
+- name: Configure Magento to use Redis for session
+  ansible.builtin.command: >
+    bin/magento setup:config:set
+    --session-save=redis
+    --session-save-redis-host=127.0.0.1
+    --session-save-redis-port={{ redis_port }}
+  args:
+    chdir: "{{ magento_home }}"
+  become_user: "{{ magento_user }}"
+  register: session_config
+  changed_when: "'Session save configuration is complete' in session_config.stdout"
+
+
+#  Flush Magento Cache (optional)
+
+- name: Flush Magento cache
+  ansible.builtin.command: bin/magento cache:flush
+  args:
+    chdir: "{{ magento_home }}"
+  become_user: "{{ magento_user }}"
+  when:
+    - cache_config.changed or session_config.changed

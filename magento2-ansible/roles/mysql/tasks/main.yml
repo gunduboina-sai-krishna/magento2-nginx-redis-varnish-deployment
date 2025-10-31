@@ -82,3 +82,8 @@
     login_password: "{{ mysql_root_password }}"
   register: mysql_info
   changed_when: false
+
+- name: restart mysql 
+  ansible.builtin.service:
+    name: mysql
+    state: restarted  

@@ -1,0 +1,83 @@
+---
+
+# Magento 2 Installation Role
+
+- name: Ensure Magento home directory exists
+  ansible.builtin.file:
+    path: "{{ magento_home }}"
+    state: directory
+    owner: "{{ magento_user }}"
+    group: "{{ magento_group }}"
+    mode: '0755'
+
+
+# Step 1: Check if Magento is already installed
+
+- name: Check if Magento is already installed
+  ansible.builtin.stat:
+    path: "{{ magento_home }}/bin/magento"
+  register: magento_installed
+
+
+# Step 2: Install Magento via Composer
+
+- name: Download Magento 2 via Composer
+  ansible.builtin.command: >
+    composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition .
+  args:
+    chdir: "{{ magento_home }}"
+  become_user: "{{ magento_user }}"
+  when: not magento_installed.stat.exists
+
+
+# Step 3: Install Magento
+
+- name: Run Magento setup:install
+  ansible.builtin.command: >
+    bin/magento setup:install
+    --base-url=https://{{ magento_domain }}
+    --db-host=localhost
+    --db-name={{ magento_db_name }}
+    --db-user={{ magento_db_user }}
+    --db-password={{ magento_db_password }}
+    --admin-firstname={{ magento_admin_firstname }}
+    --admin-lastname={{ magento_admin_lastname }}
+    --admin-email={{ magento_admin_email }}
+    --admin-user={{ magento_admin_user }}
+    --admin-password={{ magento_admin_password }}
+    --language=en_US
+    --currency=USD
+    --timezone=UTC
+    --elasticsearch-host={{ elasticsearch_host }}
+    --elasticsearch-port={{ elasticsearch_port }}
+    --backend-frontname=admin
+    --use-rewrites=1
+  args:
+    chdir: "{{ magento_home }}"
+  become_user: "{{ magento_user }}"
+  when: not magento_installed.stat.exists
+
+
+# Step 4: Install Sample Data
+
+- name: Deploy Magento sample data
+  ansible.builtin.command: bin/magento sampledata:deploy
+  args:
+    chdir: "{{ magento_home }}"
+  become_user: "{{ magento_user }}"
+  when: not magento_installed.stat.exists
+
+
+# Step 5: Reindex & flush cache
+
+- name: Run Magento indexer:reindex
+  ansible.builtin.command: bin/magento indexer:reindex
+  args:
+    chdir: "{{ magento_home }}"
+  become_user: "{{ magento_user }}"
+
+- name: Flush Magento cache
+  ansible.builtin.command: bin/magento cache:flush
+  args:
+    chdir: "{{ magento_home }}"
+  become_user: "{{ magento_user }}"

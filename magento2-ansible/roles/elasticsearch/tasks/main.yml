@@ -1,0 +1,23 @@
+# Installing Elasticsearch for Magento2
+
+- name: Install Elasticsearch
+  ansible.builtin.apt: 
+    name: elasticsearch
+    state: present
+
+- name: Ensure elasticsearch started and enabled
+  ansible.builtin.service:
+    name: elasticsearch
+    state: restarted
+    enabled: yes
+
+- name: Wait for elasticsearch to started
+  ansible.builtin.uri:
+    url: http://localhost:9200
+    return_content: no
+    status_code: 200
+  register: es_up
+  until: es_up.status == 200
+  retries: 10
+  delay: 5
+      

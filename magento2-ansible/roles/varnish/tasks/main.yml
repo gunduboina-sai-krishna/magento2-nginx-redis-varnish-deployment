@@ -1,0 +1,46 @@
+---
+- name: Install Varnish cache
+  apt:
+    name: varnish
+    state: present
+  notify: restart varnish
+
+- name: Configure Varnish default.vcl
+  template:
+    src: default.vcl.j2
+    dest: /etc/varnish/default.vcl
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart varnish
+
+- name: Configure systemd service for Varnish to listen on port {{ varnish_port }}
+  lineinfile:
+    path: /lib/systemd/system/varnish.service
+    regexp: '^ExecStart='
+    line: >
+      ExecStart=/usr/sbin/varnishd -a :{{ varnish_port }} -T localhost:6082
+      -f /etc/varnish/default.vcl -s malloc,256m
+  notify:
+    - daemon-reload
+    - restart varnish
+
+- name: Ensure varnish service is running and enabled
+  service:
+    name: varnish
+    state: started
+    enabled: true
+
+- name: restart varnish
+  service:
+    name: varnish
+    state: restarted
+
+- name: daemon-reload
+  systemd:
+    daemon_reload: true
+
+
+# After deploying magento run this - ``` sudo -u test-ssh php {{ magento2_root }}/bin/magento setup:config:set \
+#   --http-cache-hosts=127.0.0.1:{{ varnish_port }}    
+# /etc/hosts 127.0.0.1  must be set

@@ -1,0 +1,61 @@
+upstream fastcgi_backend {
+    server unix:/run/php/php{{ php_version }}-fpm-{{ php_fpm_pool }}.sock;
+}
+
+server {
+    listen 8080;
+    server_name {{ magento2_domain }};
+    set $MAGE_ROOT {{ magento2_root }};
+    set $MAGE_MODE developer;  # can change to production later
+
+    root $MAGE_ROOT/pub;
+
+    index index.php;
+    autoindex off;
+    charset off;
+    error_page 404 403 = /errors/404.php;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /pub/ {
+        alias $MAGE_ROOT/pub/;
+    }
+
+    location /static/ {
+        alias $MAGE_ROOT/pub/static/;
+        expires max;
+        add_header Cache-Control "public";
+    }
+
+    location /media/ {
+        alias $MAGE_ROOT/pub/media/;
+        expires max;
+        add_header Cache-Control "public";
+    }
+
+    location ~ (index|get|static|report|404|503)\.php$ {
+        try_files $uri =404;
+        fastcgi_pass fastcgi_backend;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+
+    location ~* \.php$ {
+        fastcgi_pass fastcgi_backend;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    access_log /var/log/nginx/magento_access.log;
+    error_log /var/log/nginx/magento_error.log;
+}

@@ -1,0 +1,43 @@
+---
+- name: Install NGINX
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Ensure nginx user is set to magento user in nginx.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^user\s+'
+    line: "user {{ nginx_user }};"
+    backrefs: yes
+  notify: reload nginx
+
+- name: Deploy Magento NGINX configuration
+  ansible.builtin.template:
+    src: nginx_magento.conf.j2
+    dest: /etc/nginx/sites-available/magento.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nginx
+
+- name: Enable Magento site configuration
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/magento.conf
+    dest: /etc/nginx/sites-enabled/magento.conf
+    state: link
+  notify: reload nginx
+
+- name: Remove default site if present
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: reload nginx
+
+- name: Ensure NGINX is running and enabled
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+
