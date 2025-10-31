@@ -35,7 +35,7 @@
 
 - name: Check if Elasticsearch repo exists
   ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/elasticsearch-{{ elastic_version }}.list
+    path: /etc/apt/sources.list.d/elasticsearch-{{ elasticsearch_version }}.list
   register: es_repo_check
 
 - name: Add Elasticsearch GPG Key
@@ -46,8 +46,8 @@
 
 - name: Add Elasticsearch Repository
   ansible.builtin.apt_repository:
-    repo: "deb https://artifacts.elastic.co/packages/{{ elastic_version }}/apt stable main"
-    filename: "elasticsearch-{{ elastic_version }}"
+    repo: "deb https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main"
+    filename: "elasticsearch-{{ elasticsearch_version }}"
     state: present
   when: not es_repo_check.stat.exists
 
