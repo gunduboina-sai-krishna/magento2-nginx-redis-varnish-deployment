@@ -1,12 +1,12 @@
-magento_user: test-ssh
-magento_group: clp
-magento_home: "/home/{{ magento_user }}"
-magento_root: /var/www/magento
-magento_domain: test.mgt.com
-php_fpm_pool: magento
-mysql_magento_db: magento
-mysql_magento_user: magento_user
-elasticsearch_version: "8.x"
+magento2_user: test-ssh
+magento2_group: clp
+magento2_home: "/home/{{ magento2_user }}"
+magento2_root: /var/www/magento2
+magento2_domain: test.mgt.com
+php_fpm_pool: magento2
+mysql_magento2_db: magento2
+mysql_magento2_user: magento2_user
+elasticsearch_version: "7.17.21"
 php_version: "8.3"
 redis_port: 6379
 varnish_port: 6081
