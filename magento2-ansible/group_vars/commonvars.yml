@@ -10,6 +10,7 @@ elasticsearch_version: "7.x"
 elasticsearch_host: 127.0.0.1
 elasticsearch_port: 9200
 php_version: "8.3"
+redis_host: 127.0.0.1
 redis_port: 6379
 varnish_port: 6081
 composer_home: /tmp/composer

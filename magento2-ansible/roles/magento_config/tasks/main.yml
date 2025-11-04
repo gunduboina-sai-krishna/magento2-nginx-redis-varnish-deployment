@@ -1,0 +1,23 @@
+
+- name: Check if env.php already exists
+  ansible.builtin.stat:
+    path: "{{ magento2_root }}/app/etc/env.php"
+  register: env_php
+
+- name: Backup existing env.php
+  ansible.builtin.copy:
+    src: "{{ magento2_root }}/app/etc/env.php"
+    dest: "{{ magento2_root }}/app/etc/env.php.bak"
+    remote_src: yes
+  when: env_php.stat.exists  
+
+- name: Deploy Magento env.php configuration
+  ansible.builtin.template:
+    src: env.php.j2
+    dest: "{{ magento2_root }}/app/etc/env.php"
+    owner: "{{ magento2_user }}"
+    group: "{{ magento2_user }}"
+    mode: '0644'
+  when: env_php.stat.exists == false
+  notify:
+    - restart php-fpm
