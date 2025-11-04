@@ -1,7 +1,6 @@
 ---
 
-# Magento 2 Installation Role
-
+# Step 0: Ensure Magento home directory exists
 - name: Ensure Magento home directory exists
   ansible.builtin.file:
     path: "{{ magento_home }}"
@@ -10,28 +9,59 @@
     group: "{{ magento_group }}"
     mode: '0755'
 
+# Step 1: Check if Composer is installed
+- name: Check if Composer is installed
+  ansible.builtin.command: which composer
+  register: composer_check
+  ignore_errors: true
+  changed_when: false
 
-# Step 1: Check if Magento is already installed
+# Step 2: Install Composer if missing
+- name: Install Composer globally
+  ansible.builtin.shell: |
+    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+    rm composer-setup.php
+  when: composer_check.rc != 0
+  become: true
 
+# Step 3: Ensure Composer auth directory exists
+- name: Ensure Composer auth directory exists
+  ansible.builtin.file:
+    path: "/root/.composer"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+# Step 4: Copy Magento Marketplace auth.json template
+- name: Deploy Composer auth.json
+  ansible.builtin.template:
+    src: "auth.json.j2"
+    dest: "/root/.composer/auth.json"
+    owner: root
+    group: root
+    mode: '0600'
+
+# Step 5: Check if Magento is already installed
 - name: Check if Magento is already installed
   ansible.builtin.stat:
     path: "{{ magento_home }}/bin/magento"
   register: magento_installed
 
-
-# Step 2: Install Magento via Composer
-
+# Step 6: Install Magento via Composer
 - name: Download Magento 2 via Composer
   ansible.builtin.command: >
-    composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition .
+    composer create-project --repository-url=https://repo.magento.com/
+    magento/project-community-edition .
   args:
     chdir: "{{ magento_home }}"
   become_user: "{{ magento_user }}"
+  environment:
+    COMPOSER_HOME: /root/.composer
   when: not magento_installed.stat.exists
 
-
-# Step 3: Install Magento
-
+# Step 7: Run Magento setup:install
 - name: Run Magento setup:install
   ansible.builtin.command: >
     bin/magento setup:install
@@ -57,9 +87,7 @@
   become_user: "{{ magento_user }}"
   when: not magento_installed.stat.exists
 
-
-# Step 4: Install Sample Data
-
+# Step 8: Deploy Magento sample data
 - name: Deploy Magento sample data
   ansible.builtin.command: bin/magento sampledata:deploy
   args:
@@ -67,9 +95,7 @@
   become_user: "{{ magento_user }}"
   when: not magento_installed.stat.exists
 
-
-# Step 5: Reindex & flush cache
-
+# Step 9: Reindex & flush cache
 - name: Run Magento indexer:reindex
   ansible.builtin.command: bin/magento indexer:reindex
   args:
