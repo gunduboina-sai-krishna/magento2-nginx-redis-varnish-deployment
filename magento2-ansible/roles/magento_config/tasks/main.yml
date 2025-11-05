@@ -1,4 +1,4 @@
-
+---
 - name: Check if env.php already exists
   ansible.builtin.stat:
     path: "{{ magento2_root }}/app/etc/env.php"
