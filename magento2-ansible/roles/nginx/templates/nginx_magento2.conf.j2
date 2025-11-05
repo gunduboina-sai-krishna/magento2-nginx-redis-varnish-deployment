@@ -65,8 +65,8 @@ server {
         deny all;
     }
 
-    access_log /var/log/nginx/magento_access.log;
-    error_log /var/log/nginx/magento_error.log;
+    access_log /var/log/nginx/magento2_access.log;
+    error_log /var/log/nginx/magento2_error.log;
 }
 
 server {
@@ -76,7 +76,7 @@ server {
     ssl_certificate     /etc/nginx/ssl/test.mgt.com/test.mgt.com.crt;
     ssl_certificate_key /etc/nginx/ssl/test.mgt.com/test.mgt.com.key;
 
-    set $MAGE_ROOT {{ magento2_root };
+    set $MAGE_ROOT {{ magento2_root }};
     root $MAGE_ROOT;
 
     index index.php index.html;
@@ -103,3 +103,5 @@ server {
     location ~* (\.htaccess|\.git|\.svn|\.hg|\.env|composer\.json|composer\.lock|package\.xml)$ {
         deny all;
     }
+}
+        

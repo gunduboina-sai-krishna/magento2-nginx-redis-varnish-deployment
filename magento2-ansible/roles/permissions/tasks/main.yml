@@ -1,14 +1,14 @@
 ---
-# Ensure Magento application directory ownership
-- name: Set ownership and permissions for Magento installation
+# Ensure Magento2 application directory ownership
+- name: Set ownership and permissions for Magento2 installation
   ansible.builtin.file:
-    path: "{{ magento_root }}"
+    path: "{{ magento2_root }}"
     owner: "{{ magento2_user }}"
     group: "{{ magento2_group }}"
     mode: '0755'
     recurse: yes
 
-# Update NGINX to run as Magento user
+# Update NGINX to run as Magento2 user
 - name: Ensure nginx user is set to magento2_user
   ansible.builtin.lineinfile:
     path: /etc/nginx/nginx.conf
@@ -16,14 +16,4 @@
     line: "user {{ magento2_user }};"
     backrefs: yes
   notify: reload nginx
-
-# Configure PHP-FPM pool for Magento
-- name: Create PHP-FPM pool configuration
-  ansible.builtin.template:
-    src: magento2-pool.conf.j2
-    dest: /etc/php/{{ php_version }}/fpm/pool.d/magento2.conf
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart php-fpm
-
+  

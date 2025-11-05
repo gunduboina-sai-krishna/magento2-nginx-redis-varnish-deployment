@@ -11,7 +11,7 @@
     remote_src: yes
   when: env_php.stat.exists  
 
-- name: Deploy Magento env.php configuration
+- name: Deploy Magento2 env.php configuration
   ansible.builtin.template:
     src: env.php.j2
     dest: "{{ magento2_root }}/app/etc/env.php"

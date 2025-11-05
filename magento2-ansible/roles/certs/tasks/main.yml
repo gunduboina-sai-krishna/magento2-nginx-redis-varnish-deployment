@@ -1,26 +1,26 @@
 ---
 - name: Ensure SSL directory exists
   ansible.builtin.file:
-    path: /etc/ssl/magento
+    path: /etc/ssl/magento2
     state: directory
     owner: root
     group: root
     mode: '0755'
 
-- name: Generate self-signed SSL certificate for Magento
+- name: Generate self-signed SSL certificate for magento2
   ansible.builtin.command: >
     openssl req -x509 -nodes -days 365
     -newkey rsa:2048
-    -keyout /etc/ssl/magento/magento.key
-    -out /etc/ssl/magento/magento.crt
-    -subj "/C=IN/ST=Telangana/L=Hyderabad/O=Magento/OU=IT/CN=test.mgt.com"
+    -keyout /etc/ssl/magento2/magento2.key
+    -out /etc/ssl/magento2/magento2.crt
+    -subj "/C=IN/ST=Telangana/L=Hyderabad/O=magento2/OU=IT/CN=test.mgt.com"
   args:
-    creates: /etc/ssl/magento/magento.crt   # idempotency — don’t regenerate if exists
+    creates: /etc/ssl/magento2/magento2.crt   # idempotency — don’t regenerate if exists
 
-- name: Deploy NGINX SSL configuration for Magento
+- name: Deploy NGINX SSL configuration for magento2
   ansible.builtin.template:
-    src: magento_ssl.conf.j2
-    dest: /etc/nginx/sites-available/magento-ssl.conf
+    src: magento2_ssl.conf.j2
+    dest: /etc/nginx/sites-available/magento2-ssl.conf
     owner: root
     group: root
     mode: '0644'
@@ -28,14 +28,14 @@
 
 - name: Enable HTTPS site
   ansible.builtin.file:
-    src: /etc/nginx/sites-available/magento-ssl.conf
-    dest: /etc/nginx/sites-enabled/magento-ssl.conf
+    src: /etc/nginx/sites-available/magento2-ssl.conf
+    dest: /etc/nginx/sites-enabled/magento2-ssl.conf
     state: link
   notify: reload nginx
 
 - name: Ensure HTTP → HTTPS redirection is configured
   ansible.builtin.lineinfile:
-    path: /etc/nginx/sites-available/magento.conf
+    path: /etc/nginx/sites-available/magento2.conf
     regexp: "return 301 https://"
     line: "    return 301 https://$host$request_uri;"
     insertafter: "listen 80;"
@@ -46,10 +46,10 @@
     name: nginx
     state: reloaded
 
-# Update Magento base URLs to HTTPS
-- name: Update Magento base URLs to use HTTPS
+# Update magento2 base URLs to HTTPS
+- name: Update magento2 base URLs to use HTTPS
   ansible.builtin.command: >
-    php {{ magento2_root }}/bin/magento setup:store-config:set
+    php {{ magento2_root }}/bin/magento2 setup:store-config:set
     --base-url="{{ magento2_domain | regex_replace('^http://', 'https://') }}/"
     --base-url-secure="{{ magento2_domain | regex_replace('^http://', 'https://') }}/"
   args:

@@ -29,7 +29,7 @@
 
 - name: Install PHP-FPM pool file for magento2
   ansible.builtin.template:
-    src: php-fpm-magento2.conf.j2
+    src: magento2-pool.conf.j2
     dest: /etc/php/{{ php_version }}/fpm/pool.d/magento2.conf
     owner: "{{ magento2_user }}"
     group: "{{ magento2_group }}"

@@ -8,7 +8,7 @@
   roles:
     - users
     - package_repos
-    - elsaticsearch
+    - elasticsearch
     - mysql
     - php
     - nginx

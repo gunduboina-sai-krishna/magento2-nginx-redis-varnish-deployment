@@ -35,39 +35,39 @@
     state: started
 
 
-#  Configure Magento with Redis
+#  Configure magento2 with Redis
 
-- name: Configure Magento to use Redis for cache
+- name: Configure magento2 to use Redis for cache
   ansible.builtin.command: >
-    bin/magento setup:config:set
+    bin/magento2 setup:config:set
     --cache-backend=redis
     --cache-backend-redis-server={{ redis_host }}
     --cache-backend-redis-port={{ redis_port }}
   args:
-    chdir: "{{ magento_home }}"
-  become_user: "{{ magento_user }}"
+    chdir: "{{ magento2_home }}"
+  become_user: "{{ magento2_user }}"
   register: cache_config
   changed_when: "'Cache backend configuration is complete' in cache_config.stdout"
 
-- name: Configure Magento to use Redis for session
+- name: Configure magento2 to use Redis for session
   ansible.builtin.command: >
-    bin/magento setup:config:set
+    bin/magento2 setup:config:set
     --session-save=redis
     --session-save-redis-host={{ redis_host }}
     --session-save-redis-port={{ redis_port }}
   args:
-    chdir: "{{ magento_home }}"
-  become_user: "{{ magento_user }}"
+    chdir: "{{ magento2_home }}"
+  become_user: "{{ magento2_user }}"
   register: session_config
   changed_when: "'Session save configuration is complete' in session_config.stdout"
 
 
-#  Flush Magento Cache (optional)
+#  Flush magento2 Cache (optional)
 
-- name: Flush Magento cache
-  ansible.builtin.command: bin/magento cache:flush
+- name: Flush magento2 cache
+  ansible.builtin.command: bin/magento2 cache:flush
   args:
-    chdir: "{{ magento_home }}"
-  become_user: "{{ magento_user }}"
+    chdir: "{{ magento2_home }}"
+  become_user: "{{ magento2_user }}"
   when:
     - cache_config.changed or session_config.changed

@@ -2,14 +2,14 @@ server {
     listen 443 ssl;
     server_name test.mgt.com;
 
-    ssl_certificate     /etc/ssl/magento/magento.crt;
-    ssl_certificate_key /etc/ssl/magento/magento.key;
+    ssl_certificate     /etc/ssl/magento2/magento2.crt;
+    ssl_certificate_key /etc/ssl/magento2/magento2.key;
 
     root {{ magento2_root }};
     index index.php;
 
-    access_log /var/log/nginx/magento_ssl_access.log;
-    error_log  /var/log/nginx/magento_ssl_error.log;
+    access_log /var/log/nginx/magento2_ssl_access.log;
+    error_log  /var/log/nginx/magento2_ssl_error.log;
 
     location / {
         try_files $uri $uri/ /index.php?$args;
