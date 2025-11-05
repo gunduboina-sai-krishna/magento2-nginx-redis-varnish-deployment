@@ -5,7 +5,7 @@
     state: present
     update_cache: yes
 
-- name: Ensure nginx user is set to magento user in nginx.conf
+- name: Ensure nginx user is set to magento2 user in nginx.conf
   ansible.builtin.lineinfile:
     path: /etc/nginx/nginx.conf
     regexp: '^user\s+'
@@ -13,19 +13,19 @@
     backrefs: yes
   notify: reload nginx
 
-- name: Deploy Magento NGINX configuration
+- name: Deploy magento2 NGINX configuration
   ansible.builtin.template:
-    src: nginx_magento.conf.j2
-    dest: /etc/nginx/sites-available/magento.conf
+    src: nginx_magento2.conf.j2
+    dest: /etc/nginx/sites-available/magento2.conf
     owner: root
     group: root
     mode: '0644'
   notify: reload nginx
 
-- name: Enable Magento site configuration
+- name: Enable magento2 site configuration
   ansible.builtin.file:
-    src: /etc/nginx/sites-available/magento.conf
-    dest: /etc/nginx/sites-enabled/magento.conf
+    src: /etc/nginx/sites-available/magento2.conf
+    dest: /etc/nginx/sites-enabled/magento2.conf
     state: link
   notify: reload nginx
 
