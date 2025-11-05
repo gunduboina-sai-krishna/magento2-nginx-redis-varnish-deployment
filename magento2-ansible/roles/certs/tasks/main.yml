@@ -15,7 +15,7 @@
     -out /etc/ssl/magento2/magento2.crt
     -subj "/C=IN/ST=Telangana/L=Hyderabad/O=magento2/OU=IT/CN=test.mgt.com"
   args:
-    creates: /etc/ssl/magento2/magento2.crt   # idempotency — don’t regenerate if exists
+    creates: /etc/ssl/magento2/magento2.crt   
 
 - name: Deploy NGINX SSL configuration for magento2
   ansible.builtin.template:
@@ -37,11 +37,11 @@
   ansible.builtin.lineinfile:
     path: /etc/nginx/sites-available/magento2.conf
     regexp: "return 301 https://"
-    line: "    return 301 https://$host$request_uri;"
+    line: "return 301 https://$host$request_uri;"
     insertafter: "listen 80;"
   notify: reload nginx
 
-- name: Ensure NGINX service is reloaded
+- name: reload nginx
   ansible.builtin.service:
     name: nginx
     state: reloaded
