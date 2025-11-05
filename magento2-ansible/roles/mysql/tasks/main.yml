@@ -2,6 +2,14 @@
 ---
 # MySQL 8 installation and configuration for magento2
 
+- name: Ensure community.mysql collection is installed
+  ansible.builtin.command: ansible-galaxy collection install community.mysql
+  args:
+    creates: ~/.ansible/collections/ansible_collections/community/mysql
+  register: mysql_collection_install
+  changed_when: "'installed successfully' in mysql_collection_install.stdout"
+
+
 - name: Add MySQL APT repository
   ansible.builtin.apt_key:
     url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
