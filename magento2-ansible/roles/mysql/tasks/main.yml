@@ -12,11 +12,11 @@
 
 # MySQL repo setup
 
-- name: Download MySQL GPG key
-  ansible.builtin.get_url:
-    url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
-    dest: /usr/share/keyrings/mysql.gpg
-    mode: '0644'
+- name: Download MySQL GPG key (convert to proper keyring)
+  ansible.builtin.shell: |
+    curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2023 | gpg --dearmor -o /usr/share/keyrings/mysql.gpg
+  args:
+    creates: /usr/share/keyrings/mysql.gpg
 
 - name: Add MySQL APT repository
   ansible.builtin.copy:
