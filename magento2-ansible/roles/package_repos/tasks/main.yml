@@ -23,17 +23,18 @@
     path: /etc/apt/sources.list.d/php-sury.list
   register: php_repo_check
 
-- name: Add PHP Sury GPG Key
-  ansible.builtin.apt_key:
-    url: https://packages.sury.org/php/apt.gpg
-    state: present
-  when: not php_repo_check.stat.exists
+- name: Download PHP Sury GPG key and dearmor
+  ansible.builtin.shell: |
+    curl -fsSL https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/php-sury.gpg
+  args:
+    creates: /usr/share/keyrings/php-sury.gpg
 
-- name: Add PHP Sury Repository
-  ansible.builtin.apt_repository:
-    repo: "deb https://packages.sury.org/php/ {{ ansible_distribution_release }} main"
-    filename: php-sury
-    state: present
+- name: Add PHP Sury repo
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/php-sury.list
+    content: |
+      deb [signed-by=/usr/share/keyrings/php-sury.gpg] https://packages.sury.org/php/ {{ ansible_distribution_release }} main
+    mode: '0644'
   when: not php_repo_check.stat.exists
 
 # Elasticsearch Repository
@@ -43,18 +44,35 @@
     path: /etc/apt/sources.list.d/elasticsearch-{{ elasticsearch_version }}.list
   register: es_repo_check
 
-- name: Add Elasticsearch GPG Key
-  ansible.builtin.apt_key:
-    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
-    state: present
+- name: Download Elastic GPG key and dearmor
+  ansible.builtin.shell: |
+    curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | gpg --dearmor -o /usr/share/keyrings/elastic.gpg
+  args:
+    creates: /usr/share/keyrings/elastic.gpg
+
+- name: Add Elasticsearch repo
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/elasticsearch-{{ elasticsearch_version }}.list
+    content: |
+      deb [signed-by=/usr/share/keyrings/elastic.gpg] https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main
+    mode: '0644'
   when: not es_repo_check.stat.exists
 
-- name: Add Elasticsearch Repository
-  ansible.builtin.apt_repository:
-    repo: "deb https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main"
-    filename: "elasticsearch-{{ elasticsearch_version }}"
-    state: present
-  when: not es_repo_check.stat.exists
+# MySQL Repository
+
+- name: Download MySQL GPG key and dearmor
+  ansible.builtin.shell: |
+    curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2023 | gpg --dearmor -o /usr/share/keyrings/mysql.gpg
+  args:
+    creates: /usr/share/keyrings/mysql.gpg
+
+- name: Add MySQL APT repo file
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/mysql.list
+    content: |
+      deb [arch=amd64 signed-by=/usr/share/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian bookworm mysql-8.0
+    mode: '0644'
+ 
 
 - name: Apt Update after repo changes
   ansible.builtin.apt:
