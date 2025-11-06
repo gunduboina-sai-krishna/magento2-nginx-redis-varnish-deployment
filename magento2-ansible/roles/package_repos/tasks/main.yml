@@ -16,64 +16,55 @@
     update_cache: yes
     cache_valid_time: 3600
 
-# PHP Sury Repository
-
-- name: Check if PHP Sury repo is exists
-  ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/php-sury.list
-  register: php_repo_check
-
-- name: Download PHP Sury GPG key and dearmor
-  ansible.builtin.shell: |
-    curl -fsSL https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/php-sury.gpg
-  args:
-    creates: /usr/share/keyrings/php-sury.gpg
-
-- name: Add PHP Sury repo
-  ansible.builtin.copy:
-    dest: /etc/apt/sources.list.d/php-sury.list
-    content: |
-      deb [signed-by=/usr/share/keyrings/php-sury.gpg] https://packages.sury.org/php/ {{ ansible_distribution_release }} main
-    mode: '0644'
-  when: not php_repo_check.stat.exists
-
-# Elasticsearch Repository
-
-- name: Check if Elasticsearch repo exists
-  ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/elasticsearch-{{ elasticsearch_version }}.list
-  register: es_repo_check
-
-- name: Download Elastic GPG key and dearmor
-  ansible.builtin.shell: |
-    curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | gpg --dearmor -o /usr/share/keyrings/elastic.gpg
-  args:
-    creates: /usr/share/keyrings/elastic.gpg
-
-- name: Add Elasticsearch repo
-  ansible.builtin.copy:
-    dest: /etc/apt/sources.list.d/elasticsearch-{{ elasticsearch_version }}.list
-    content: |
-      deb [signed-by=/usr/share/keyrings/elastic.gpg] https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main
-    mode: '0644'
-  when: not es_repo_check.stat.exists
-
+# ==========================
 # MySQL Repository
-
-- name: Download MySQL GPG key and dearmor
-  ansible.builtin.shell: |
-    curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2023 | gpg --dearmor -o /usr/share/keyrings/mysql.gpg
-  args:
-    creates: /usr/share/keyrings/mysql.gpg
-
-- name: Add MySQL APT repo file
-  ansible.builtin.copy:
-    dest: /etc/apt/sources.list.d/mysql.list
-    content: |
-      deb [arch=amd64 signed-by=/usr/share/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian bookworm mysql-8.0
+# ==========================
+- name: Add MySQL GPG key
+  ansible.builtin.get_url:
+    url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
+    dest: /usr/share/keyrings/mysql.gpg
     mode: '0644'
- 
 
-- name: Apt Update after repo changes
+- name: Add MySQL APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian {{ ansible_distribution_release }} mysql-8.0"
+    filename: mysql
+    state: present
+
+# ==========================
+# PHP Sury Repository
+# ==========================
+- name: Add PHP Sury GPG key
+  ansible.builtin.get_url:
+    url: https://packages.sury.org/php/apt.gpg
+    dest: /usr/share/keyrings/php-sury.gpg
+    mode: '0644'
+
+- name: Add PHP Sury repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/php-sury.gpg] https://packages.sury.org/php/ {{ ansible_distribution_release }} main"
+    filename: php-sury
+    state: present
+
+# ==========================
+# Elasticsearch Repository
+# ==========================
+- name: Add Elasticsearch GPG key
+  ansible.builtin.get_url:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    dest: /usr/share/keyrings/elasticsearch.gpg
+    mode: '0644'
+
+- name: Add Elasticsearch repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/elasticsearch.gpg] https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main"
+    filename: "elasticsearch-{{ elasticsearch_version }}"
+    state: present
+
+# ==========================
+# Update cache
+# ==========================
+- name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
+
