@@ -13,42 +13,32 @@
 # MySQL repo setup
 
 
-- name: Ensure old MySQL key is available (until Oracle updates upstream)
-  ansible.builtin.shell: |
+- name: Import old MySQL key (temporary fix until Oracle updates)
+  ansible.builtin.command: >
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
-  changed_when: false
   args:
-    executable: /bin/bash
+    creates: /etc/apt/trusted.gpg
+  register: mysql_key_import
+  changed_when: "'imported' in mysql_key_import.stdout or 'gpg' in mysql_key_import.stdout"
+  become: yes
 
-- name: Create keyrings directory
-  ansible.builtin.file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: '0755'
-
-- name: Download MySQL GPG key
-  ansible.builtin.get_url:
-    url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
-    dest: /etc/apt/keyrings/RPM-GPG-KEY-mysql-2023
-    mode: '0644'
-
-- name: Convert MySQL key to GPG keyring format
-  ansible.builtin.command:
-    cmd: gpg --dearmor -o /etc/apt/keyrings/mysql.gpg /etc/apt/keyrings/RPM-GPG-KEY-mysql-2023
-  args:
-    creates: /etc/apt/keyrings/mysql.gpg
-
-
-- name: Add MySQL APT repository
+- name: Ensure MySQL APT repository is present
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/mysql.list
     content: |
-      deb [signed-by=/etc/apt/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian bookworm mysql-8.0
+      deb http://repo.mysql.com/apt/debian bookworm mysql-8.0
+    mode: '0644'
+  become: yes
+
+- name: Wait a moment for keyring sync (ensures apt sees key)
+  ansible.builtin.pause:
+    seconds: 3
 
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
-
+    force_apt_get: yes
+  become: yes
 
 
 - name: Install MySQL 8 server and client
