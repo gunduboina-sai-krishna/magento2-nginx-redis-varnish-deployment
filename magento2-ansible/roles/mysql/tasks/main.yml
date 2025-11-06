@@ -13,32 +13,30 @@
 # MySQL repo setup
 
 
-- name: Import old MySQL key (temporary fix until Oracle updates)
-  ansible.builtin.command: >
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+- name: Ensure keyrings directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Import MySQL APT GPG key from keyserver
+  ansible.builtin.shell: |
+    gpg --no-default-keyring --keyring /usr/share/keyrings/mysql.gpg \
+        --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+    gpg --no-default-keyring --keyring /usr/share/keyrings/mysql.gpg \
+        --export --output /etc/apt/keyrings/mysql.gpg
   args:
-    creates: /etc/apt/trusted.gpg
-  register: mysql_key_import
-  changed_when: "'imported' in mysql_key_import.stdout or 'gpg' in mysql_key_import.stdout"
-  become: true
+    creates: /etc/apt/keyrings/mysql.gpg
 
-- name: Ensure MySQL APT repository is present
-  ansible.builtin.copy:
-    dest: /etc/apt/sources.list.d/mysql.list
-    content: |
-      deb http://repo.mysql.com/apt/debian bookworm mysql-8.0
-    mode: '0644'
-  become: true
-
-- name: Wait a moment for keyring sync (ensures apt sees key)
-  ansible.builtin.pause:
-    seconds: 3
+- name: Add MySQL APT repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian bookworm mysql-8.0"
+    state: present
+    filename: mysql
 
 - name: Update apt cache
-  ansible.builtin.apt:
+  apt:
     update_cache: yes
-    force_apt_get: yes
-  become: true
 
 
 - name: Install MySQL 8 server and client
