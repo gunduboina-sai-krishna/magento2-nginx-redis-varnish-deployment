@@ -16,16 +16,16 @@
 - name: Ensure old MySQL key is available (until Oracle updates upstream)
   ansible.builtin.shell: |
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
-  args:
-    warn: false
   changed_when: false
+  args:
+    executable: /bin/bash
 
 - name: Import new MySQL GPG key
   ansible.builtin.shell: |
     mkdir -p /etc/apt/keyrings
     curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2023 | gpg --dearmor -o /etc/apt/keyrings/mysql.gpg
   args:
-    warn: false
+    executable: /bin/bash
 
 - name: Add MySQL APT repository
   ansible.builtin.copy:
@@ -36,6 +36,7 @@
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
+
 
 
 - name: Install MySQL 8 server and client
