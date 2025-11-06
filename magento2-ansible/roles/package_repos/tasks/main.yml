@@ -17,21 +17,6 @@
     cache_valid_time: 3600
 
 # ==========================
-# MySQL Repository
-# ==========================
-- name: Add MySQL GPG key
-  ansible.builtin.get_url:
-    url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
-    dest: /usr/share/keyrings/mysql.gpg
-    mode: '0644'
-
-- name: Add MySQL APT repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian {{ ansible_distribution_release }} mysql-8.0"
-    filename: mysql
-    state: present
-
-# ==========================
 # PHP Sury Repository
 # ==========================
 - name: Add PHP Sury GPG key

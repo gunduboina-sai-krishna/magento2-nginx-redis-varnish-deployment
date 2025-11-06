@@ -12,6 +12,21 @@
 
 # MySQL repo setup
 
+- name: Download MySQL APT Config package
+  ansible.builtin.get_url:
+    url: https://repo.mysql.com/mysql-apt-config_0.8.29-1_all.deb
+    dest: /tmp/mysql-apt-config.deb
+    mode: '0644'
+
+- name: Install MySQL APT Config package
+  ansible.builtin.apt:
+    deb: /tmp/mysql-apt-config.deb
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+
 - name: Install MySQL 8 server and client
   ansible.builtin.apt:
     name:
