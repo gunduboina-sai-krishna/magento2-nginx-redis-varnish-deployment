@@ -28,7 +28,7 @@
     enabled: true
 
 # Secure MySQL installation
----
+
 - name: Secure MySQL Installation (disable remote root, remove test DB)
   community.mysql.mysql_secure_installation:
     login_user: "{{ mysql_root_user }}"
