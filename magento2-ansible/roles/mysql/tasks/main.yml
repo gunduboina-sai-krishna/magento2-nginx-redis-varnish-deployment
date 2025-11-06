@@ -12,33 +12,6 @@
 
 # MySQL repo setup
 
-
-- name: Ensure keyrings directory exists
-  file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: '0755'
-
-- name: Import MySQL APT GPG key from keyserver
-  ansible.builtin.shell: |
-    gpg --no-default-keyring --keyring /usr/share/keyrings/mysql.gpg \
-        --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
-    gpg --no-default-keyring --keyring /usr/share/keyrings/mysql.gpg \
-        --export --output /etc/apt/keyrings/mysql.gpg
-  args:
-    creates: /etc/apt/keyrings/mysql.gpg
-
-- name: Add MySQL APT repository
-  apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian bookworm mysql-8.0"
-    state: present
-    filename: mysql
-
-- name: Update apt cache
-  apt:
-    update_cache: yes
-
-
 - name: Install MySQL 8 server and client
   ansible.builtin.apt:
     name:
