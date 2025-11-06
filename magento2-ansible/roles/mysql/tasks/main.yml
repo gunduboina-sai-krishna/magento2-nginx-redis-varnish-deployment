@@ -26,6 +26,17 @@
     enabled: true
 
 # Secure MySQL installation
+
+# Fix root auth plugin before setting password
+- name: Switch root authentication from auth_socket to mysql_native_password
+  ansible.builtin.shell: |
+    mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ mysql_root_password }}'; FLUSH PRIVILEGES;"
+  args:
+    executable: /bin/bash
+  become: true
+  ignore_errors: false
+
+
 - name: Ensure MySQL root password is set
   community.mysql.mysql_user:
     name: "{{ mysql_root_user }}"
