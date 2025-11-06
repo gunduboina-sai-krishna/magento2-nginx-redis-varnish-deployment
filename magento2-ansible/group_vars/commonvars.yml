@@ -4,6 +4,7 @@ magento2_home: "/home/{{ magento2_user }}"
 magento2_root: /var/www/html/magento2
 magento2_domain: http://test.mgt.com
 php_fpm_pool: magento2
+mysql_root_user: root
 mysql_magento2_db: magento2
 mysql_magento2_user: magento2_user
 elasticsearch_version: "7.x"
