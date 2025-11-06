@@ -26,6 +26,7 @@
     enabled: true
 
 # Secure MySQL installation
+
 - name: Secure MySQL Installation (disable remote root, remove test DB)
   community.mysql.mysql_secure_installation:
     login_user: "{{ mysql_root_user }}"
@@ -36,7 +37,7 @@
     remove_test_db: yes
     state: present
 
-- name: Ensure Magento database is present
+- name: Ensure Magento2 database is present
   community.mysql.mysql_db:
     name: "{{ mysql_magento2_db }}"
     encoding: utf8mb4
@@ -45,7 +46,7 @@
     login_user: "{{ mysql_root_user }}"
     login_password: "{{ mysql_root_password }}"
 
-- name: Ensure Magento DB user is present
+- name: Ensure Magento2 DB user is present
   community.mysql.mysql_user:
     name: "{{ mysql_magento2_user }}"
     password: "{{ mysql_magento2_password }}"
