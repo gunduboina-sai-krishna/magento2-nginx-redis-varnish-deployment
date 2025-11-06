@@ -26,16 +26,47 @@
     enabled: true
 
 # Secure MySQL installation
-
-- name: Secure MySQL Installation (disable remote root, remove test DB)
-  community.mysql.mysql_secure_installation:
-    login_user: "{{ mysql_root_user }}"
-    login_password: "{{ mysql_root_password }}"
-    root_password: "{{ mysql_root_password }}"
-    remove_anonymous_users: yes
-    disallow_root_login_remotely: yes
-    remove_test_db: yes
+- name: Ensure MySQL root password is set
+  community.mysql.mysql_user:
+    name: "{{ mysql_root_user }}"
+    host: localhost
+    password: "{{ mysql_root_password }}"
+    plugin: mysql_native_password
     state: present
+  become: true
+
+# Remove anonymous users
+- name: Remove anonymous MySQL users
+  community.mysql.mysql_user:
+    name: ''
+    host_all: true
+    state: absent
+  become: true
+
+# Remove test database
+- name: Remove test database
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+  become: true
+
+# Disallow remote root login
+- name: Disallow remote root login
+  community.mysql.mysql_user:
+    name: root
+    host: "{{ ansible_hostname }}"
+    state: absent
+  ignore_errors: true
+  become: true
+
+# Flush privileges
+- name: Flush privileges
+  community.mysql.mysql_query:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    query: "FLUSH PRIVILEGES;"
+  become: true
+
 
 - name: Ensure Magento2 database is present
   community.mysql.mysql_db:
