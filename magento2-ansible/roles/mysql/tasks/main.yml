@@ -12,6 +12,14 @@
 
 # MySQL repo setup
 
+
+- name: Ensure old MySQL key is available (until Oracle updates upstream)
+  ansible.builtin.shell: |
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+  args:
+    warn: false
+  changed_when: false
+
 - name: Import new MySQL GPG key
   ansible.builtin.shell: |
     mkdir -p /etc/apt/keyrings
