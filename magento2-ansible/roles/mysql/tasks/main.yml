@@ -29,18 +29,21 @@
 
 # Fix root auth plugin before setting password
 - name: Switch root authentication from auth_socket to mysql_native_password
-  ansible.builtin.command: >
-    mysql -u root
-    -e "ALTER USER 'root'@'localhost'
-        IDENTIFIED WITH mysql_native_password
-        BY '{{ mysql_root_password }}'; FLUSH PRIVILEGES;"
+  ansible.builtin.shell: |
+    sudo mysql -e "ALTER USER 'root'@'localhost'
+      IDENTIFIED WITH mysql_native_password
+      BY '{{ mysql_root_password }}';
+      FLUSH PRIVILEGES;"
+  args:
+    executable: /bin/bash
   become: true
   become_user: root
   environment:
     HOME: /root
-  register: switch_auth
-  changed_when: "'ALTER USER' in switch_auth.stdout or switch_auth.rc == 0"
-  failed_when: switch_auth.rc != 0 and 'already' not in switch_auth.stderr
+  register: mysql_auth_switch
+  changed_when: "'ALTER USER' in mysql_auth_switch.stdout or mysql_auth_switch.rc == 0"
+  failed_when: mysql_auth_switch.rc != 0 and 'already' not in mysql_auth_switch.stderr
+
 
 
 - name: Ensure MySQL root password is set
