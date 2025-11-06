@@ -1,6 +1,6 @@
 
 ---
-# MySQL 8 installation and configuration for magento2
+# MySQL 8 installation and configuration for Magento 2
 
 - name: Ensure community.mysql collection is installed
   ansible.builtin.command: ansible-galaxy collection install community.mysql
@@ -9,9 +9,7 @@
   register: mysql_collection_install
   changed_when: "'installed successfully' in mysql_collection_install.stdout"
 
-
-# MySQL repo setup
-
+# Install MySQL 8 packages
 - name: Install MySQL 8 server and client
   ansible.builtin.apt:
     name:
@@ -28,7 +26,6 @@
     enabled: true
 
 # Secure MySQL installation
-
 - name: Secure MySQL Installation (disable remote root, remove test DB)
   community.mysql.mysql_secure_installation:
     login_user: "{{ mysql_root_user }}"
@@ -65,8 +62,8 @@
     login_password: "{{ mysql_root_password }}"
     query: "FLUSH PRIVILEGES;"
 
-# Optimize MySQL for magento2
-- name: Deploy optimized MySQL configuration for magento2
+# Optimize MySQL for Magento2
+- name: Deploy optimized MySQL configuration for Magento2
   ansible.builtin.template:
     src: magento2.cnf.j2
     dest: /etc/mysql/conf.d/magento2.cnf
@@ -78,7 +75,7 @@
 # Optional validation
 - name: Validate MySQL connectivity
   community.mysql.mysql_info:
-    login_user: root
+    login_user: "{{ mysql_root_user }}"
     login_password: "{{ mysql_root_password }}"
   register: mysql_info
   changed_when: false
