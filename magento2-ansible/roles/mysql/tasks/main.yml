@@ -12,15 +12,18 @@
 
 # MySQL repo setup
 
-- name: Download MySQL APT Config package
-  ansible.builtin.get_url:
-    url: https://repo.mysql.com/mysql-apt-config_0.8.29-1_all.deb
-    dest: /tmp/mysql-apt-config.deb
-    mode: '0644'
+- name: Import new MySQL GPG key
+  ansible.builtin.shell: |
+    mkdir -p /etc/apt/keyrings
+    curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2023 | gpg --dearmor -o /etc/apt/keyrings/mysql.gpg
+  args:
+    warn: false
 
-- name: Install MySQL APT Config package
-  ansible.builtin.apt:
-    deb: /tmp/mysql-apt-config.deb
+- name: Add MySQL APT repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/mysql.list
+    content: |
+      deb [signed-by=/etc/apt/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian bookworm mysql-8.0
 
 - name: Update apt cache
   ansible.builtin.apt:
