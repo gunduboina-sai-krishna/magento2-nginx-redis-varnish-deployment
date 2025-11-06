@@ -10,17 +10,25 @@
   changed_when: "'installed successfully' in mysql_collection_install.stdout"
 
 
-- name: Add MySQL GPG key (modern way)
+# MySQL repo setup
+
+- name: Download MySQL GPG key
   ansible.builtin.get_url:
     url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
     dest: /usr/share/keyrings/mysql.gpg
     mode: '0644'
 
-- name: Add MySQL 8 APT repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian bookworm mysql-8.0"
-    state: present
-    filename: mysql
+- name: Add MySQL APT repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/mysql.list
+    content: |
+      deb [arch=amd64 signed-by=/usr/share/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian bookworm mysql-8.0
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Update apt cache
+  ansible.builtin.apt:
     update_cache: yes
 
 - name: Install MySQL 8 server and client
