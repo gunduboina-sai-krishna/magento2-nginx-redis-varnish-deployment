@@ -27,22 +27,34 @@
 
 # Secure MySQL installation
 
-# Fix root auth plugin before setting password
-- name: Switch root authentication from auth_socket to mysql_native_password
+- name: Create SQL file to reset root password and plugin
+  ansible.builtin.copy:
+    dest: /tmp/mysql-init.sql
+    content: |
+      ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ mysql_root_password }}';
+      FLUSH PRIVILEGES;
+  owner: root
+  group: root
+  mode: '0600'
+  become: true
+
+- name: Restart MySQL with init-file to apply password
   ansible.builtin.shell: |
-    sudo mysql -e "ALTER USER 'root'@'localhost'
-      IDENTIFIED WITH mysql_native_password
-      BY '{{ mysql_root_password }}';
-      FLUSH PRIVILEGES;"
+    systemctl stop mysql
+    mysqld_safe --init-file=/tmp/mysql-init.sql &
+    sleep 5
+    systemctl restart mysql
+    rm -f /tmp/mysql-init.sql
   args:
     executable: /bin/bash
   become: true
-  become_user: root
-  environment:
-    HOME: /root
-  register: mysql_auth_switch
-  changed_when: "'ALTER USER' in mysql_auth_switch.stdout or mysql_auth_switch.rc == 0"
-  failed_when: mysql_auth_switch.rc != 0 and 'already' not in mysql_auth_switch.stderr
+
+- name: Verify root authentication plugin
+  ansible.builtin.shell: "mysql -u root -p'{{ mysql_root_password }}' -Nse \"SELECT user,plugin FROM mysql.user WHERE user='root';\""
+  register: mysql_plugin_check
+  changed_when: false
+  become: true
+
 
 
 
