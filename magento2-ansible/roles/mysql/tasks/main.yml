@@ -20,12 +20,24 @@
   args:
     executable: /bin/bash
 
-- name: Import new MySQL GPG key
-  ansible.builtin.shell: |
-    mkdir -p /etc/apt/keyrings
-    curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2023 | gpg --dearmor -o /etc/apt/keyrings/mysql.gpg
+- name: Create keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download MySQL GPG key
+  ansible.builtin.get_url:
+    url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
+    dest: /etc/apt/keyrings/RPM-GPG-KEY-mysql-2023
+    mode: '0644'
+
+- name: Convert MySQL key to GPG keyring format
+  ansible.builtin.command:
+    cmd: gpg --dearmor -o /etc/apt/keyrings/mysql.gpg /etc/apt/keyrings/RPM-GPG-KEY-mysql-2023
   args:
-    executable: /bin/bash
+    creates: /etc/apt/keyrings/mysql.gpg
+
 
 - name: Add MySQL APT repository
   ansible.builtin.copy:
