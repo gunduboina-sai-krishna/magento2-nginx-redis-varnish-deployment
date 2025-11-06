@@ -10,15 +10,15 @@
     - package_repos
     - elasticsearch
     - mysql
-    - php
-    - nginx
-    - magento2
-    - permissions
-    - magento_config
-    - redis
-    - phpmyadmin
-    - certs
-    - varnish
+    #- php
+    #- nginx
+    #- magento2
+    #- permissions
+    #- magento_config
+    #- redis
+    #- phpmyadmin
+    #- certs
+    #- varnish
 
   handlers:
     - name: reload nginx
