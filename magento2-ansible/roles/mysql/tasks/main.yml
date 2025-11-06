@@ -20,7 +20,7 @@
     creates: /etc/apt/trusted.gpg
   register: mysql_key_import
   changed_when: "'imported' in mysql_key_import.stdout or 'gpg' in mysql_key_import.stdout"
-  become: yes
+  become: true
 
 - name: Ensure MySQL APT repository is present
   ansible.builtin.copy:
@@ -28,7 +28,7 @@
     content: |
       deb http://repo.mysql.com/apt/debian bookworm mysql-8.0
     mode: '0644'
-  become: yes
+  become: true
 
 - name: Wait a moment for keyring sync (ensures apt sees key)
   ansible.builtin.pause:
@@ -38,7 +38,7 @@
   ansible.builtin.apt:
     update_cache: yes
     force_apt_get: yes
-  become: yes
+  become: true
 
 
 - name: Install MySQL 8 server and client
