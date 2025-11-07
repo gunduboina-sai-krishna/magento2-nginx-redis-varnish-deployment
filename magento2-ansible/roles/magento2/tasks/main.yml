@@ -1,101 +1,98 @@
----
-# Step 0: Ensure magento2 home directory exists
 
-- name: Ensure magento2 home directory exists
-  ansible.builtin.file:
+---
+- name: Ensure Magento home directory exists
+  file:
     path: "{{ magento2_home }}"
     state: directory
     owner: "{{ magento2_user }}"
     group: "{{ magento2_group }}"
     mode: '0755'
 
-# Step 1: Check if Composer is installed
 - name: Check if Composer is installed
-  ansible.builtin.command: which composer
+  command: which composer
   register: composer_check
   ignore_errors: true
   changed_when: false
 
-# Step 2: Install Composer if missing
-- name: Install Composer globally
-  ansible.builtin.shell: |
+- name: Install Composer globally if missing
+  shell: |
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer
     rm composer-setup.php
   when: composer_check.rc != 0
 
-# Step 3: Ensure Composer auth directory exists
-- name: Ensure composer directory exists for magento user
-  ansible.builtin.file:
+- name: Ensure Composer auth directory exists
+  file:
     path: "/home/{{ magento2_user }}/.composer"
     state: directory
     owner: "{{ magento2_user }}"
-    group: "{{ magento2_group }}"   
+    group: "{{ magento2_group }}"
     mode: '0700'
 
-# Step 4: Deploy Composer auth.json for Magento user
-- name: Deploy Composer auth.json for Magento user
-  ansible.builtin.template:
-    src: "auth.json.j2"
+- name: Deploy Composer auth.json
+  template:
+    src: auth.json.j2
     dest: "/home/{{ magento2_user }}/.composer/auth.json"
     owner: "{{ magento2_user }}"
-    group: "{{ magento2_group }}"   
+    group: "{{ magento2_group }}"
     mode: '0600'
 
-# Step 5: Ensure acl package present
-- name: Ensure acl package present
-  ansible.builtin.apt:
+- name: Ensure acl package is installed
+  apt:
     name: acl
     state: present
     update_cache: yes
-  become: true
 
-# Step 6: Check if magento2 is already installed
-- name: Check if magento2 is already installed
-  ansible.builtin.stat:
-    path: "{{ magento2_home }}/bin/magento"
-  register: magento2_installed
+- name: Check if Magento is already installed
+  stat:
+    path: "{{ magento_installed_flag }}"
+  register: magento_installed
 
-- name: Check if magento2 home directory is empty
-  ansible.builtin.find:
+- name: Check if Magento home directory has files
+  find:
     paths: "{{ magento2_home }}"
     file_type: any
   register: magento2_dir
 
-# Step 6b: Check if composer.json exists in magento2_home
-- name: Check if composer.json exists
-  stat:
-    path: "{{ magento2_home }}/composer.json"
-  register: composer_json_exists
-
-# Step 7a: If composer.json exists but Magento not installed, run composer install
-- name: Install Magento dependencies via Composer
+- name: Run composer install if composer.json exists
   command: composer install --no-dev
   args:
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
   environment:
     COMPOSER_HOME: "/home/{{ magento2_user }}/.composer"
-  when: not magento2_installed.stat.exists and magento2_dir.matched > 0
+  when:
+    - not magento_installed.stat.exists
+    - magento2_dir.matched > 0
 
-# Step 7b: If directory empty, create project via composer
-- name: Download Magento2 via Composer (create-project)
-  ansible.builtin.command: >
+- name: Install Magento via Composer (create-project)
+  command: >
     composer create-project --repository-url=https://repo.magento.com/
     magento/project-community-edition .
   args:
     chdir: "{{ magento2_home }}"
-  become: true
   become_user: "{{ magento2_user }}"
-  become_flags: "-H -S"
   environment:
     COMPOSER_HOME: "/home/{{ magento2_user }}/.composer"
-  when: not magento2_installed.stat.exists and magento2_dir.matched == 0
+  when:
+    - not magento_installed.stat.exists
+    - magento2_dir.matched == 0
 
+- name: Set proper permissions for Magento directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ magento2_user }}"
+    group: "{{ magento2_group }}"
+    recurse: yes
+  with_items:
+    - "{{ magento2_home }}/var"
+    - "{{ magento2_home }}/generated"
+    - "{{ magento2_home }}/pub/static"
+    - "{{ magento2_home }}/vendor"
 
-# Step 8: Run magento2 setup:install
-- name: Run magento2 setup:install
-  ansible.builtin.command: >
+- name: Run Magento setup:install
+  command: >
     bin/magento setup:install
     --base-url=https://{{ magento2_domain }}
     --db-host=localhost
@@ -117,26 +114,31 @@
   args:
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
-  when: not magento2_installed.stat.exists
+  when: not magento_installed.stat.exists
 
-# Step 9: Deploy magento2 sample data
-- name: Deploy magento2 sample data
-  ansible.builtin.command: bin/magento sampledata:deploy
+- name: Deploy Magento sample data
+  command: bin/magento sampledata:deploy
   args:
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
-  when: not magento2_installed.stat.exists
+  when: not magento_installed.stat.exists
 
-# Step 10: Reindex & flush cache
-- name: Run magento2 indexer:reindex
-  ansible.builtin.command: bin/magento indexer:reindex
+- name: Run Magento reindex
+  command: bin/magento indexer:reindex
   args:
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
+  when: not magento_installed.stat.exists
 
-- name: Flush magento2 cache
-  ansible.builtin.command: bin/magento cache:flush
+- name: Flush Magento cache
+  command: bin/magento cache:flush
   args:
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
+  when: not magento_installed.stat.exists
 
+- name: Create Magento installed flag file
+  file:
+    path: "{{ magento_installed_flag }}"
+    state: touch
+  when: not magento_installed.stat.exists
