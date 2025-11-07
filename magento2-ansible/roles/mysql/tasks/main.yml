@@ -68,12 +68,16 @@
     name: ''
     host_all: true
     state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
 
 # Remove test database
 - name: Remove test database
   community.mysql.mysql_db:
     name: test
     state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
 
 # Disallow remote root login
 - name: Disallow remote root login
@@ -81,6 +85,8 @@
     name: root
     host: "{{ ansible_hostname }}"
     state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
   ignore_errors: true
 
 # Flush privileges
