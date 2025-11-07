@@ -1,7 +1,7 @@
 magento2_user: test-ssh
 magento2_group: clp
 magento2_home: /var/www/magento2
-magento2_domain: http://test.mgt.com
+magento2_domain: test.mgt.com
 php_fpm_pool: magento2
 mysql_root_user: root
 mysql_magento2_db: magento2
