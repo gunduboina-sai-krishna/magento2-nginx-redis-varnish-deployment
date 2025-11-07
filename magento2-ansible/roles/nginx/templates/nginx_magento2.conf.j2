@@ -3,7 +3,7 @@ upstream fastcgi_backend {
 }
 
 server {
-    listen 8080;
+    listen 80;
     server_name {{ magento2_domain }};
     set $MAGE_ROOT {{ magento2_home }};
     set $MAGE_MODE developer;  # can change to production later
@@ -69,39 +69,5 @@ server {
     error_log /var/log/nginx/magento2_error.log;
 }
 
-server {
-    listen 443 ssl;
-    server_name test.mgt.com;
 
-    ssl_certificate     /etc/nginx/ssl/test.mgt.com/test.mgt.com.crt;
-    ssl_certificate_key /etc/nginx/ssl/test.mgt.com/test.mgt.com.key;
-
-    set $MAGE_ROOT {{ magento2_home }};
-    root $MAGE_ROOT;
-
-    index index.php index.html;
-
-    location / {
-        try_files $uri $uri/ /index.php?$args;
-    }
-
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php{{ php_version }}-fpm-{{ php_fpm_pool }}.sock;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
-        fastcgi_busy_buffers_size 32k;
-        fastcgi_temp_file_write_size 32k;
-        fastcgi_read_timeout 300;
-        fastcgi_send_timeout 300;
-
-    }
-
-    location ~* (\.htaccess|\.git|\.svn|\.hg|\.env|composer\.json|composer\.lock|package\.xml)$ {
-        deny all;
-    }
-}
         
