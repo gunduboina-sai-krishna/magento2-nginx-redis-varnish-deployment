@@ -45,7 +45,7 @@
 
 - name: Check if Magento is already installed
   stat:
-    path: "{{ magento_installed_flag }}"
+    path: "{{ magento2_home }}/.magento_installed"
   register: magento_installed
 
 - name: Check if Magento home directory has files
@@ -139,6 +139,6 @@
 
 - name: Create Magento installed flag file
   file:
-    path: "{{ magento_installed_flag }}"
+    path: "{{ magento2_home }}/.magento_installed"
     state: touch
   when: not magento_installed.stat.exists
