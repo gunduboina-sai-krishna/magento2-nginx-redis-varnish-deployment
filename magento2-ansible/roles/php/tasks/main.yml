@@ -7,25 +7,33 @@
   ignore_errors: true
   changed_when: false
 
-- name: Install PHP and extensions
+- name: Install PHP 8.3 and required extensions
   ansible.builtin.apt:
     name:
-    - php{{ php_version }}-fpm
-    - php{{ php_version }}-cli
-    - php{{ php_version }}-mysql
-    - php{{ php_version }}-xml
-    - php{{ php_version }}-gd
-    - php{{ php_version }}-mbstring
-    - php{{ php_version }}-curl
-    - php{{ php_version }}-intl
-    - php{{ php_version }}-zip
-    - php{{ php_version }}-bcmath
-    - php{{ php_version }}-opcache
-    - php-redis
+      - php{{ php_version }}
+      - php{{ php_version }}-fpm
+      - php{{ php_version }}-cli
+      - php{{ php_version }}-mysql
+      - php{{ php_version }}-xml
+      - php{{ php_version }}-gd
+      - php{{ php_version }}-mbstring
+      - php{{ php_version }}-curl
+      - php{{ php_version }}-intl
+      - php{{ php_version }}-zip
+      - php{{ php_version }}-bcmath
+      - php{{ php_version }}-opcache
+      - php-redis
     state: present
     update_cache: yes
-  when: php_package_check.rc != 0  
   notify: restart php-fpm
+
+- name: Ensure php8.3 is the default PHP CLI
+  ansible.builtin.file:
+    src: "/usr/bin/php{{ php_version }}"
+    dest: "/usr/bin/php"
+    state: link
+    force: yes
+
 
 - name: Install PHP-FPM pool file for magento2
   ansible.builtin.template:

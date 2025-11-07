@@ -7,10 +7,10 @@ mysql_root_user: root
 mysql_magento2_db: magento2
 mysql_magento2_user: magento2_user
 elasticsearch_version: "7.x"
-elasticsearch_host: 127.0.0.1
+elasticsearch_host: "127.0.0.1"
 elasticsearch_port: 9200
 php_version: "8.3"
-redis_host: 127.0.0.1
+redis_host: "127.0.0.1"
 redis_port: 6379
 varnish_port: 80
 composer_home: /tmp/composer
