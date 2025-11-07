@@ -43,6 +43,13 @@
     group: root
     mode: '0600'
 
+- name: Ensure acl package present
+  ansible.builtin.apt:
+    name: acl
+    state: present
+    update_cache: yes
+  become: true
+
 # Step 5: Check if magento2 is already installed
 - name: Check if magento2 is already installed
   ansible.builtin.stat:
