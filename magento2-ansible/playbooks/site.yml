@@ -21,6 +21,11 @@
     #- varnish
 
   handlers:
+    - name: restart mysql 
+      ansible.builtin.service:
+        name: mysql
+        state: restarted 
+        
     - name: reload nginx
       ansible.builtin.service:
         name: nginx
