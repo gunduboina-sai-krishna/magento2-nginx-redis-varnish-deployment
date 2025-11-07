@@ -2,7 +2,7 @@
 # Ensure Magento2 application directory ownership
 - name: Set ownership and permissions for Magento2 installation
   ansible.builtin.file:
-    path: "{{ magento2_root }}"
+    path: "{{ magento2_home }}"
     owner: "{{ magento2_user }}"
     group: "{{ magento2_group }}"
     mode: '0755'
@@ -13,7 +13,7 @@
   ansible.builtin.lineinfile:
     path: /etc/nginx/nginx.conf
     regexp: '^user\s+'
-    line: "user {{ magento2_user }};"
+    line: "user {{ magento2_user }} {{ magento2_group }};"
     backrefs: yes
   notify: reload nginx
   

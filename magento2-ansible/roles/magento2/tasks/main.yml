@@ -78,18 +78,44 @@
     - not magento_installed.stat.exists
     - magento2_dir.matched == 0
 
-- name: Set proper permissions for Magento directories
-  file:
-    path: "{{ item }}"
+- name: Ensure Magento home directory ownership
+  ansible.builtin.file:
+    path: "{{ magento2_home }}"
     state: directory
     owner: "{{ magento2_user }}"
     group: "{{ magento2_group }}"
     recurse: yes
-  with_items:
-    - "{{ magento2_home }}/var"
-    - "{{ magento2_home }}/generated"
-    - "{{ magento2_home }}/pub/static"
-    - "{{ magento2_home }}/vendor"
+
+- name: Set file permissions for Magento writable directories
+  ansible.builtin.find:
+    paths:
+      - "{{ magento2_home }}/var"
+      - "{{ magento2_home }}/pub/static"
+      - "{{ magento2_home }}/generated"
+    file_type: file
+  register: magento_files
+
+- name: Apply 664 permission to Magento files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: '0664'
+  loop: "{{ magento_files.files }}"
+
+- name: Set directory permissions for Magento writable directories
+  ansible.builtin.find:
+    paths:
+      - "{{ magento2_home }}/var"
+      - "{{ magento2_home }}/pub/static"
+      - "{{ magento2_home }}/generated"
+    file_type: directory
+  register: magento_dirs
+
+- name: Apply 775 permission to Magento directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: '0775'
+  loop: "{{ magento_dirs.files }}"
+  
 
 - name: Run Magento setup:install
   command: >
