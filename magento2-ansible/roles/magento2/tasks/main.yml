@@ -63,19 +63,26 @@
     file_type: any
   register: magento2_dir
 
-# Step 7: If directory has composer.json but Magento not installed, run composer install
+# Step 6b: Check if composer.json exists in magento2_home
+- name: Check if composer.json exists
+  stat:
+    path: "{{ magento2_home }}/composer.json"
+  register: composer_json_exists
+
+# Step 7a: If composer.json exists but Magento not installed, run composer install
 - name: Install Magento dependencies via Composer
-  ansible.builtin.command: composer install --no-dev
+  command: composer install --no-dev
   args:
     chdir: "{{ magento2_home }}"
   become: true
   become_user: "{{ magento2_user }}"
-  when: not magento2_installed.stat.exists and magento2_dir.matched > 0
+  when:
+    - not magento2_installed.stat.exists
+    - composer_json_exists.stat.exists
 
-
-# Step 7: Install magento2 via Composer
-- name: Download Magento2 via Composer
-  ansible.builtin.command: >
+# Step 7b: If directory empty, create project via composer
+- name: Download Magento2 via Composer (create-project)
+  command: >
     composer create-project --repository-url=https://repo.magento.com/
     magento/project-community-edition .
   args:
@@ -85,7 +92,10 @@
   become_flags: "-H -S"
   environment:
     COMPOSER_HOME: "/home/{{ magento2_user }}/.composer"
-  when: not magento2_installed.stat.exists
+  when:
+    - not magento2_installed.stat.exists
+    - not composer_json_exists.stat.exists
+
 
 # Step 8: Run magento2 setup:install
 - name: Run magento2 setup:install
