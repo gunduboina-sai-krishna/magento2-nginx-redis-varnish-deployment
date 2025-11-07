@@ -1,6 +1,6 @@
 ---
-
 # Step 0: Ensure magento2 home directory exists
+
 - name: Ensure magento2 home directory exists
   ansible.builtin.file:
     path: "{{ magento2_home }}"
@@ -31,20 +31,19 @@
     path: "/home/{{ magento2_user }}/.composer"
     state: directory
     owner: "{{ magento2_user }}"
-    group: "{{ magento2_user }}"
+    group: "{{ magento2_group }}"   # ✅ FIXED
     mode: '0700'
 
-
-# Step 4: Copy magento2 Marketplace auth.json template
+# Step 4: Deploy Composer auth.json for Magento user
 - name: Deploy Composer auth.json for Magento user
   ansible.builtin.template:
     src: "auth.json.j2"
     dest: "/home/{{ magento2_user }}/.composer/auth.json"
     owner: "{{ magento2_user }}"
-    group: "{{ magento2_user }}"
+    group: "{{ magento2_group }}"   # ✅ FIXED
     mode: '0600'
 
-
+# Step 5: Ensure acl package present
 - name: Ensure acl package present
   ansible.builtin.apt:
     name: acl
@@ -52,13 +51,13 @@
     update_cache: yes
   become: true
 
-# Step 5: Check if magento2 is already installed
+# Step 6: Check if magento2 is already installed
 - name: Check if magento2 is already installed
   ansible.builtin.stat:
-    path: "{{ magento2_home }}/bin/magento2"
+    path: "{{ magento2_home }}/bin/magento"
   register: magento2_installed
 
-# Step 6: Install magento2 via Composer
+# Step 7: Install magento2 via Composer
 - name: Download Magento2 via Composer
   ansible.builtin.command: >
     composer create-project --repository-url=https://repo.magento.com/
@@ -72,11 +71,10 @@
     COMPOSER_HOME: "/home/{{ magento2_user }}/.composer"
   when: not magento2_installed.stat.exists
 
-
-# Step 7: Run magento2 setup:install
+# Step 8: Run magento2 setup:install
 - name: Run magento2 setup:install
   ansible.builtin.command: >
-    bin/magento2 setup:install
+    bin/magento setup:install
     --base-url=https://{{ magento2_domain }}
     --db-host=localhost
     --db-name={{ mysql_magento2_db }}
@@ -99,7 +97,7 @@
   become_user: "{{ magento2_user }}"
   when: not magento2_installed.stat.exists
 
-# Step 8: Deploy magento2 sample data
+# Step 9: Deploy magento2 sample data
 - name: Deploy magento2 sample data
   ansible.builtin.command: bin/magento sampledata:deploy
   args:
@@ -107,7 +105,7 @@
   become_user: "{{ magento2_user }}"
   when: not magento2_installed.stat.exists
 
-# Step 9: Reindex & flush cache
+# Step 10: Reindex & flush cache
 - name: Run magento2 indexer:reindex
   ansible.builtin.command: bin/magento indexer:reindex
   args:
@@ -119,3 +117,4 @@
   args:
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
+
