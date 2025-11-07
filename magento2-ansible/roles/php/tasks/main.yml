@@ -7,6 +7,21 @@
   ignore_errors: true
   changed_when: false
 
+- name: Pin PHP 8.3 packages to prevent 8.4 auto-installation
+  ansible.builtin.copy:
+    dest: /etc/apt/preferences.d/php.pref
+    content: |
+      Package: php*
+      Pin: version 8.3*
+      Pin-Priority: 1001
+
+- name: Purge PHP 8.4 packages if any
+  ansible.builtin.shell: |
+    apt-get purge -y 'php8.4*'
+    apt-get autoremove -y
+  ignore_errors: true
+
+
 - name: Install PHP 8.3 and required extensions
   ansible.builtin.apt:
     name:
@@ -22,7 +37,7 @@
       - php{{ php_version }}-zip
       - php{{ php_version }}-bcmath
       - php{{ php_version }}-opcache
-      - php-redis
+      - php{{ php_version }}-redis
     state: present
     update_cache: yes
   notify: restart php-fpm
