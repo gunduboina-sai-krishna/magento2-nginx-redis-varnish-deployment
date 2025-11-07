@@ -50,16 +50,19 @@
   register: magento2_installed
 
 # Step 6: Install magento2 via Composer
-- name: Download magento2 2 via Composer
+- name: Download Magento2 via Composer
   ansible.builtin.command: >
     composer create-project --repository-url=https://repo.magento2.com/
-    magento2/project-community-edition .
+    magento/project-community-edition .
   args:
     chdir: "{{ magento2_home }}"
+  become: true
   become_user: "{{ magento2_user }}"
+  become_flags: "-H -S"
   environment:
-    COMPOSER_HOME: /root/.composer
+    COMPOSER_HOME: "/home/{{ magento2_user }}/.composer"
   when: not magento2_installed.stat.exists
+
 
 # Step 7: Run magento2 setup:install
 - name: Run magento2 setup:install
