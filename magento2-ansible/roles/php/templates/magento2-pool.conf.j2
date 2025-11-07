@@ -12,7 +12,7 @@ pm.start_servers = 4
 pm.min_spare_servers = 2
 pm.max_spare_servers = 6
 
-chdir = {{ magento2_root }}
+chdir = {{ magento2_home }}
 catch_workers_output = yes
 php_admin_value[memory_limit] = 2G
 php_admin_value[upload_max_filesize] = 64M
