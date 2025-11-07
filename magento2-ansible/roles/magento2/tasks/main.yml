@@ -120,7 +120,7 @@
 - name: Run Magento setup:install
   command: >
     bin/magento setup:install
-    --base-url=https://{{ magento2_domain }}
+    --base-url=http://{{ magento2_domain }}
     --db-host=localhost
     --db-name={{ mysql_magento2_db }}
     --db-user={{ mysql_magento2_user }}
