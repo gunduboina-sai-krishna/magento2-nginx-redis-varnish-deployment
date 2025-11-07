@@ -10,7 +10,7 @@
     #- package_repos
     #- elasticsearch
     #- mysql
-    #- php
+    - php
     - nginx
     - magento2
     #- permissions
