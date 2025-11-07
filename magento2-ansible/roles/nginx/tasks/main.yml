@@ -9,7 +9,7 @@
   ansible.builtin.lineinfile:
     path: /etc/nginx/nginx.conf
     regexp: '^user\s+'
-    line: "user {{ nginx_user }};"
+    line: "user {{ magento2_user }} {{ magento2_group }};"
     backrefs: yes
   notify: reload nginx
 
