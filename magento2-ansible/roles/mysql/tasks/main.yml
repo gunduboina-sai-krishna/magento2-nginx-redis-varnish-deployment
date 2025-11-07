@@ -33,10 +33,9 @@
     content: |
       ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ mysql_root_password }}';
       FLUSH PRIVILEGES;
-  owner: root
-  group: root
-  mode: '0600'
-  become: true
+    owner: root
+    group: root
+    mode: '0600'
 
 - name: Restart MySQL with init-file to apply password
   ansible.builtin.shell: |
@@ -47,16 +46,11 @@
     rm -f /tmp/mysql-init.sql
   args:
     executable: /bin/bash
-  become: true
 
 - name: Verify root authentication plugin
   ansible.builtin.shell: "mysql -u root -p'{{ mysql_root_password }}' -Nse \"SELECT user,plugin FROM mysql.user WHERE user='root';\""
   register: mysql_plugin_check
   changed_when: false
-  become: true
-
-
-
 
 - name: Ensure MySQL root password is set
   community.mysql.mysql_user:
@@ -65,10 +59,8 @@
     password: "{{ mysql_root_password }}"
     plugin: mysql_native_password
     state: present
-    login_user: "{{ mysql_root_user }}"
+    login_user: root
     login_password: "{{ mysql_root_password }}"
-  become: true
-
 
 # Remove anonymous users
 - name: Remove anonymous MySQL users
@@ -76,14 +68,12 @@
     name: ''
     host_all: true
     state: absent
-  become: true
 
 # Remove test database
 - name: Remove test database
   community.mysql.mysql_db:
     name: test
     state: absent
-  become: true
 
 # Disallow remote root login
 - name: Disallow remote root login
@@ -92,7 +82,6 @@
     host: "{{ ansible_hostname }}"
     state: absent
   ignore_errors: true
-  become: true
 
 # Flush privileges
 - name: Flush privileges
@@ -100,8 +89,6 @@
     login_user: root
     login_password: "{{ mysql_root_password }}"
     query: "FLUSH PRIVILEGES;"
-  become: true
-
 
 - name: Ensure Magento2 database is present
   community.mysql.mysql_db:
@@ -109,7 +96,7 @@
     encoding: utf8mb4
     collation: utf8mb4_unicode_ci
     state: present
-    login_user: "{{ mysql_root_user }}"
+    login_user: root
     login_password: "{{ mysql_root_password }}"
 
 - name: Ensure Magento2 DB user is present
@@ -120,12 +107,12 @@
     host: "localhost"
     state: present
     append_privs: yes
-    login_user: "{{ mysql_root_user }}"
+    login_user: root
     login_password: "{{ mysql_root_password }}"
 
-- name: Flush privileges
+- name: Flush privileges again
   community.mysql.mysql_query:
-    login_user: "{{ mysql_root_user }}"
+    login_user: root
     login_password: "{{ mysql_root_password }}"
     query: "FLUSH PRIVILEGES;"
 
@@ -142,7 +129,7 @@
 # Optional validation
 - name: Validate MySQL connectivity
   community.mysql.mysql_info:
-    login_user: "{{ mysql_root_user }}"
+    login_user: root
     login_password: "{{ mysql_root_password }}"
   register: mysql_info
   changed_when: false
