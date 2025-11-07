@@ -94,7 +94,6 @@
     COMPOSER_HOME: "/home/{{ magento2_user }}/.composer"
   when:
     - not magento2_installed.stat.exists
-    - not composer_json_exists.stat.exists
 
 
 # Step 8: Run magento2 setup:install
