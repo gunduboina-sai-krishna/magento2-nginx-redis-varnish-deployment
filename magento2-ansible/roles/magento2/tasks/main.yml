@@ -59,7 +59,7 @@
 # Step 6: Install magento2 via Composer
 - name: Download Magento2 via Composer
   ansible.builtin.command: >
-    composer create-project --repository-url=https://repo.magento2.com/
+    composer create-project --repository-url=https://repo.magento.com/
     magento/project-community-edition .
   args:
     chdir: "{{ magento2_home }}"
@@ -77,9 +77,9 @@
     bin/magento2 setup:install
     --base-url=https://{{ magento2_domain }}
     --db-host=localhost
-    --db-name={{ magento2_db_name }}
-    --db-user={{ magento2_db_user }}
-    --db-password={{ magento2_db_password }}
+    --db-name={{ mysql_magento2_db }}
+    --db-user={{ mysql_magento2_user }}
+    --db-password={{ mysql_magento2_password }}
     --admin-firstname={{ magento2_admin_firstname }}
     --admin-lastname={{ magento2_admin_lastname }}
     --admin-email={{ magento2_admin_email }}
@@ -99,7 +99,7 @@
 
 # Step 8: Deploy magento2 sample data
 - name: Deploy magento2 sample data
-  ansible.builtin.command: bin/magento2 sampledata:deploy
+  ansible.builtin.command: bin/magento sampledata:deploy
   args:
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
@@ -107,13 +107,13 @@
 
 # Step 9: Reindex & flush cache
 - name: Run magento2 indexer:reindex
-  ansible.builtin.command: bin/magento2 indexer:reindex
+  ansible.builtin.command: bin/magento indexer:reindex
   args:
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
 
 - name: Flush magento2 cache
-  ansible.builtin.command: bin/magento2 cache:flush
+  ansible.builtin.command: bin/magento cache:flush
   args:
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
