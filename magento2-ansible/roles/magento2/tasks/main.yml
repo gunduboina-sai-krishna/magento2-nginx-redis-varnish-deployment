@@ -26,22 +26,24 @@
   become: true
 
 # Step 3: Ensure Composer auth directory exists
-- name: Ensure Composer auth directory exists
+- name: Ensure composer directory exists for magento user
   ansible.builtin.file:
-    path: "/root/.composer"
+    path: "/home/{{ magento2_user }}/.composer"
     state: directory
-    owner: root
-    group: root
+    owner: "{{ magento2_user }}"
+    group: "{{ magento2_user }}"
     mode: '0700'
 
+
 # Step 4: Copy magento2 Marketplace auth.json template
-- name: Deploy Composer auth.json
+- name: Deploy Composer auth.json for Magento user
   ansible.builtin.template:
     src: "auth.json.j2"
-    dest: "/root/.composer/auth.json"
-    owner: root
-    group: root
+    dest: "/home/{{ magento2_user }}/.composer/auth.json"
+    owner: "{{ magento2_user }}"
+    group: "{{ magento2_user }}"
     mode: '0600'
+
 
 - name: Ensure acl package present
   ansible.builtin.apt:
