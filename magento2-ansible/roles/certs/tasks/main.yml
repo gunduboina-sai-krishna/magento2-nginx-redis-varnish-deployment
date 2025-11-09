@@ -17,22 +17,6 @@
   args:
     creates: /etc/ssl/magento2/magento2.crt   
 
-- name: Deploy NGINX SSL configuration for magento2
-  ansible.builtin.template:
-    src: magento2_ssl.conf.j2
-    dest: /etc/nginx/sites-available/magento2-ssl.conf
-    owner: root
-    group: root
-    mode: '0644'
-  notify: reload nginx
-
-- name: Enable HTTPS site
-  ansible.builtin.file:
-    src: /etc/nginx/sites-available/magento2-ssl.conf
-    dest: /etc/nginx/sites-enabled/magento2-ssl.conf
-    state: link
-  notify: reload nginx
-
 - name: Ensure HTTP → HTTPS redirection is configured
   ansible.builtin.lineinfile:
     path: /etc/nginx/sites-available/magento2.conf

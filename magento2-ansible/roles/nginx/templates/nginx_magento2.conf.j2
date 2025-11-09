@@ -72,5 +72,30 @@ server {
     error_log /var/log/nginx/error.log;
 }
 
+server {
+    listen 443 ssl;
+    server_name test.mgt.com;
+
+    root /var/www/magento2/pub;
+    index index.php index.html;
+
+    ssl_certificate /etc/nginx/ssl/test.mgt.com/test.mgt.com.crt;
+    ssl_certificate_key /etc/nginx/ssl/test.mgt.com/test.mgt.com.key;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_pass unix:/run/php/php8.3-fpm-magento2.sock;
+        include fastcgi.conf;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+    }
+}
+
 
         
