@@ -31,6 +31,27 @@
     timeout: 20
     state: started
 
+- name: Check if env.php already exists
+  ansible.builtin.stat:
+    path: "{{ magento2_home }}/app/etc/env.php"
+  register: env_php
+
+- name: Remove Magento auto backup if exists (to prevent permission issues)
+  file:
+    path: "{{ magento2_home }}/app/etc/env.php.bak"
+    state: absent
+  become: true
+
+- name: Deploy Magento2 env.php configuration
+  ansible.builtin.template:
+    src: env.php.j2
+    dest: "{{ magento2_home }}/app/etc/env.php"
+    owner: "{{ magento2_user }}"
+    group: "{{ magento2_group }}"
+    mode: '0644'
+  when: env_php.stat.exists == false
+  notify:
+    - restart php-fpm  
 
 #  Configure Magento2 with Redis
 
