@@ -11,7 +11,7 @@
     #- elasticsearch
     #- mysql
     #- php
-    #- nginx
+    - nginx
     #- magento2
     #- permissions
    # - magento_config 
