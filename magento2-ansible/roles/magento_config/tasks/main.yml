@@ -8,6 +8,9 @@
   ansible.builtin.copy:
     src: "{{ magento2_home }}/app/etc/env.php"
     dest: "{{ magento2_home }}/app/etc/env.php.bak"
+    owner: "{{ magento2_user }}"
+    group: "{{ magento2_group }}"
+    mode: '0644'    
     remote_src: yes
   when: env_php.stat.exists  
 
