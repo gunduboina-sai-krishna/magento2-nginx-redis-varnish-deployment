@@ -24,9 +24,6 @@
     state: started
     enabled: yes
 
-
-#  Verify Redis Port 
-
 - name: Wait for Redis port {{ redis_port }} to become open
   ansible.builtin.wait_for:
     host: "{{ redis_host }}"
@@ -60,9 +57,6 @@
   become_user: "{{ magento2_user }}"
   register: session_config
   changed_when: "'Session save configuration is complete' in session_config.stdout"
-
-
-#  Flush Magento2 Cache (optional)
 
 - name: Flush Magento2 cache
   ansible.builtin.command: bin/magento cache:flush
