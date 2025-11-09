@@ -32,14 +32,14 @@
     enabled: true
 
   handlers:
-    - name: restart varnish
-      ansible.builtin.service:
-        name: varnish
-        state: restarted
+  - name: restart varnish
+    ansible.builtin.service:
+      name: varnish
+      state: restarted
 
-    - name: daemon-reload
-      ansible.builtin.systemd:
-        daemon_reload: true
+  - name: daemon-reload
+    ansible.builtin.systemd:
+      daemon_reload: true
 
 
 # After deploying magento run this - ``` sudo -u test-ssh php {{ magento2_root }}/bin/magento setup:config:set \
