@@ -42,6 +42,14 @@
         state: restarted
         enabled: true       
 
+    - name: restart varnish
+      ansible.builtin.service:
+        name: varnish
+        state: restarted
+
+    - name: daemon-reload
+      ansible.builtin.systemd:
+        daemon_reload: true
 
     
 
