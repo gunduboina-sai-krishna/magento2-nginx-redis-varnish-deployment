@@ -10,13 +10,13 @@
     #- package_repos
     #- elasticsearch
     #- mysql
-    - php
-    - nginx
-    - magento2
+    #- php
+    #- nginx
+    #- magento2
     #- permissions
-    #- magento_config
-    #- redis
-    #- phpmyadmin
+    - redis
+    - magento_config 
+    - phpmyadmin
     #- certs
     #- varnish
 
