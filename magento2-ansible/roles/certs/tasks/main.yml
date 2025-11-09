@@ -1,7 +1,7 @@
 ---
 - name: Ensure SSL directory exists
   ansible.builtin.file:
-    path: /etc/nginx/ssl/magento2
+    path: /etc/ssl/magento2
     state: directory
     owner: root
     group: root
@@ -11,11 +11,11 @@
   ansible.builtin.command: >
     openssl req -x509 -nodes -days 365
     -newkey rsa:2048
-    -keyout /etc/nginx/ssl/magento2/magento2.key
-    -out /etc/nginx/ssl/magento2/magento2.crt
+    -keyout /etc/ssl/magento2/magento2.key
+    -out /etc/ssl/magento2/magento2.crt
     -subj "/C=IN/ST=Telangana/L=Hyderabad/O=magento2/OU=IT/CN=test.mgt.com"
   args:
-    creates: /etc/nginx/ssl/magento2/magento2.crt   
+    creates: /etc/ssl/magento2/magento2.crt   
 
 - name: Ensure HTTP → HTTPS redirection is configured
   ansible.builtin.lineinfile:
