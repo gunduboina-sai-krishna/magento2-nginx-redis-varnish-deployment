@@ -1,12 +1,12 @@
 ---
 - name: Install Varnish cache
-  apt:
+  ansible.builtin.apt:
     name: varnish
     state: present
   notify: restart varnish
 
 - name: Configure Varnish default.vcl
-  template:
+  ansible.builtin.template:
     src: default.vcl.j2
     dest: /etc/varnish/default.vcl
     owner: root
@@ -15,7 +15,7 @@
   notify: restart varnish
 
 - name: Configure systemd service for Varnish to listen on port {{ varnish_port }}
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /lib/systemd/system/varnish.service
     regexp: '^ExecStart='
     line: >
@@ -26,19 +26,20 @@
     - restart varnish
 
 - name: Ensure varnish service is running and enabled
-  service:
+  ansible.builtin.service:
     name: varnish
     state: started
     enabled: true
 
-- name: restart varnish
-  service:
-    name: varnish
-    state: restarted
+  handlers:
+    - name: restart varnish
+      ansible.builtin.service:
+        name: varnish
+        state: restarted
 
-- name: daemon-reload
-  systemd:
-    daemon_reload: true
+    - name: daemon-reload
+      ansible.builtin.systemd:
+        daemon_reload: true
 
 
 # After deploying magento run this - ``` sudo -u test-ssh php {{ magento2_root }}/bin/magento setup:config:set \
