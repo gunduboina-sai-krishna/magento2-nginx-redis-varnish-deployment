@@ -1,45 +1,41 @@
-vcl 4.1;
-
-backend default {
-    .host = "127.0.0.1";
-    .port = "8080";  # NGINX will listen on 8080 instead of 80
-}
-
-acl purge {
-    "localhost";
-    "127.0.0.1";
-}
-
 sub vcl_recv {
     if (req.method == "PURGE") {
-        if (!client.ip ~ purge) {
-            return (synth(405, "Not allowed."));
-        }
+        if (!client.ip ~ purge) { return (synth(405, "Not allowed.")); }
         return (purge);
     }
 
-    if (req.url ~ "^/(pub/)?(media|static)/") {
-        return (hash);
-    }
+    # Static files
+    if (req.url ~ "^/(pub/)?(media|static)/") { return (hash); }
 
-    if (req.http.Authorization || req.method == "POST") {
-        return (pass);
-    }
+    # Bypass admin, login, REST, GraphQL
+    if (req.url ~ "^/(index.php/)?(rest|graphql|admin|customer|checkout)") { return (pass); }
+
+    # Bypass POST & authorization
+    if (req.http.Authorization || req.method == "POST") { return (pass); }
+
+    # Handle PHPSESSID
+    if (req.http.Cookie ~ "PHPSESSID") { return (pass); }
+
+    # Remove other cookies for caching
+    unset req.http.Cookie;
 
     return (hash);
 }
 
 sub vcl_backend_response {
+    # Longer TTL for cached pages
     if (beresp.ttl <= 0s || beresp.http.Set-Cookie) {
-        set beresp.ttl = 120s;
-        return (deliver);
+        set beresp.ttl = 3600s;
     }
+    return (deliver);
 }
 
 sub vcl_deliver {
-    if (obj.hits > 0) {
-        set resp.http.X-Cache = "HIT";
-    } else {
-        set resp.http.X-Cache = "MISS";
+    if (obj.hits > 0) { set resp.http.X-Cache = "HIT"; }
+    else { set resp.http.X-Cache = "MISS"; }
+
+    # Add Magento cache debug header
+    if (resp.http.X-Magento-Cache-Debug == "") {
+        set resp.http.X-Magento-Cache-Debug = resp.http.X-Cache;
     }
 }
