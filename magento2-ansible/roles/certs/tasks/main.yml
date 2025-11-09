@@ -33,7 +33,7 @@
 # Update magento2 base URLs to HTTPS
 - name: Update magento2 base URLs to use HTTPS
   ansible.builtin.command: >
-    php {{ magento2_home }}/bin/magento2 setup:store-config:set
+    php {{ magento2_home }}/bin/magento setup:store-config:set
     --base-url="{{ magento2_domain | regex_replace('^http://', 'https://') }}/"
     --base-url-secure="{{ magento2_domain | regex_replace('^http://', 'https://') }}/"
   args:
