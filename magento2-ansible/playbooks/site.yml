@@ -15,7 +15,7 @@
     #- permissions
    # - magento_config 
    # - redis
-    #- phpmyadmin
+    - phpmyadmin
     - certs
     - nginx
     - varnish

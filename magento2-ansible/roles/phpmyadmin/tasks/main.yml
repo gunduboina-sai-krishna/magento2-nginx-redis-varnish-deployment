@@ -1,9 +1,16 @@
 ---
-- name: Install PHPMyAdmin package
+- name: Install phpMyAdmin without upgrading PHP version
   ansible.builtin.apt:
     name: phpmyadmin
     state: present
-  become: true
+    update_cache: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+- name: Hold PHP packages at current version
+  ansible.builtin.shell: "apt-mark hold php php{{ php_version }}*"
+  changed_when: false
+
 
 - name: Create phpMyAdmin directory under web root
   ansible.builtin.file:
