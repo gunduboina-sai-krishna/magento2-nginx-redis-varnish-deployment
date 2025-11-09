@@ -15,10 +15,10 @@
     #- magento2
     #- permissions
    # - magento_config 
-    - redis
-    - phpmyadmin
-    #- certs
-    #- varnish
+   # - redis
+    #- phpmyadmin
+    - certs
+    - varnish
 
   handlers:
     - name: restart mysql 
