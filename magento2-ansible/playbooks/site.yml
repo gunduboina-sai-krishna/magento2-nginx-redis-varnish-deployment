@@ -14,7 +14,7 @@
     #- nginx
     #- magento2
     #- permissions
-    - magento_config 
+   # - magento_config 
     - redis
     - phpmyadmin
     #- certs

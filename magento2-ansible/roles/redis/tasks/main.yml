@@ -96,9 +96,9 @@
   become_user: "{{ magento2_user }}"
   async: 120
   poll: 10
-  register: magento2_redis_cache
+  register: magento2_redis_session
   retries: 2
-  until: magento2_redis_cache.rc == 0
+  until: magento2_redis_session.rc == 0
 
 
 # - name: Configure Magento2 to use Redis for session
@@ -119,4 +119,4 @@
     chdir: "{{ magento2_home }}"
   become_user: "{{ magento2_user }}"
   when:
-    - cache_config.changed or session_config.changed
+    - magento2_redis_cache.changed or magento2_redis_session.changed
