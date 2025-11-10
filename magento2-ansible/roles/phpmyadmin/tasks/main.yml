@@ -14,7 +14,7 @@
 
 - name: Create phpMyAdmin directory under web root
   ansible.builtin.file:
-    path: /var/www/magento2/phpmyadmin
+    path: "{{ magento2_home }}/phpmyadmin"
     state: directory
     owner: "{{ magento2_user }}"
     group: "{{ magento2_group }}"
@@ -23,7 +23,7 @@
 - name: Link phpMyAdmin installation to web root
   ansible.builtin.file:
     src: /usr/share/phpmyadmin
-    dest: /var/www/magento2/phpmyadmin
+    dest: "{{ magento2_home }}/phpmyadmin"
     state: link
     force: yes
 

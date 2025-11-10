@@ -11,12 +11,14 @@
       - ca-certificates
       - lsb-release
       - gnupg
+      - dnsutils
       - software-properties-common
     state: present
     update_cache: yes
     cache_valid_time: 3600
     
 # PHP Sury Repository
+
 - name: Check if PHP Sury repo exists
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/php-sury.list
@@ -36,6 +38,7 @@
   when: not php_repo_check.stat.exists
 
 # Elasticsearch Repository
+
 - name: Check if Elasticsearch repo exists
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/elasticsearch-{{ elasticsearch_version }}.list
@@ -82,10 +85,6 @@
     state: present
     filename: mysql
 
-
-# ==========================
-# Update cache
-# ==========================
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes

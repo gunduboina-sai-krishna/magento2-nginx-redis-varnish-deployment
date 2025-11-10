@@ -9,7 +9,7 @@
   register: mysql_collection_install
   changed_when: "'installed successfully' in mysql_collection_install.stdout"
 
-# Install MySQL 8 packages
+
 - name: Install MySQL 8 server and client
   ansible.builtin.apt:
     name:
@@ -24,8 +24,6 @@
     name: mysql
     state: started
     enabled: true
-
-# Secure MySQL installation
 
 - name: Create SQL file to reset root password and plugin
   ansible.builtin.copy:
@@ -62,7 +60,6 @@
     login_user: root
     login_password: "{{ mysql_root_password }}"
 
-# Remove anonymous users
 - name: Remove anonymous MySQL users
   community.mysql.mysql_user:
     name: ''
@@ -71,7 +68,6 @@
     login_user: root
     login_password: "{{ mysql_root_password }}"
 
-# Remove test database
 - name: Remove test database
   community.mysql.mysql_db:
     name: test
@@ -79,7 +75,6 @@
     login_user: root
     login_password: "{{ mysql_root_password }}"
 
-# Disallow remote root login
 - name: Disallow remote root login
   community.mysql.mysql_user:
     name: root
@@ -89,7 +84,7 @@
     login_password: "{{ mysql_root_password }}"
   ignore_errors: true
 
-# Flush privileges
+
 - name: Flush privileges
   community.mysql.mysql_query:
     login_user: root
@@ -122,7 +117,7 @@
     login_password: "{{ mysql_root_password }}"
     query: "FLUSH PRIVILEGES;"
 
-# Optimize MySQL for Magento2
+
 - name: Deploy optimized MySQL configuration for Magento2
   ansible.builtin.template:
     src: magento2.cnf.j2
@@ -132,7 +127,7 @@
     mode: '0644'
   notify: restart mysql
 
-# Optional validation
+
 - name: Validate MySQL connectivity
   community.mysql.mysql_info:
     login_user: root

@@ -1,7 +1,7 @@
 [magento2]
 user = {{ magento2_user }}
 group = {{ magento2_group }}
-listen = /run/php/php{{ php_version }}-fpm-magento2.sock
+listen = /run/php/php{{ php_version }}-fpm-{{ php_fpm_pool }}.sock
 listen.owner = {{ magento2_user }}
 listen.group = {{ magento2_group }}
 listen.mode = 0660
@@ -18,5 +18,5 @@ php_admin_value[memory_limit] = 2G
 php_admin_value[upload_max_filesize] = 64M
 php_admin_value[post_max_size] = 64M
 php_admin_value[max_execution_time] = 1800
-php_admin_value[error_log] = /var/log/php{{ php_version }}-fpm-magento2.log
+php_admin_value[error_log] = /var/log/php{{ php_version }}-fpm-{{ php_fpm_pool }}.log
 php_admin_flag[log_errors] = on

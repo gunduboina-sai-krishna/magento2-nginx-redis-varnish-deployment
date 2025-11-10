@@ -25,12 +25,6 @@
     insertafter: "listen 80;"
   notify: reload nginx
 
-- name: reload nginx
-  ansible.builtin.service:
-    name: nginx
-    state: reloaded
-
-# Update magento2 base URLs to HTTPS
 - name: Update magento2 base URLs to use HTTPS
   ansible.builtin.command: >
     php {{ magento2_home }}/bin/magento setup:store-config:set

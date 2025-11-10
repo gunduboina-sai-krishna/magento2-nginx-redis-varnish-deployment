@@ -1,3 +1,5 @@
+---
+# Magenyo2 web application deployment
 
 - name: Magento2 Web App
   hosts: magento2
@@ -6,15 +8,13 @@
     - ../group_vars/commonvars.yml
     - ../group_vars/secretvars.yml
   roles:
-    #- users
-    #- package_repos
-    #- elasticsearch
-    #- mysql
-    #- php
-    #- magento2
-    #- permissions
-   # - magento_config 
-   # - redis
+    - users
+    - package_repos
+    - elasticsearch
+    - mysql
+    - php
+    - magento2
+    - redis
     - phpmyadmin
     - certs
     - nginx

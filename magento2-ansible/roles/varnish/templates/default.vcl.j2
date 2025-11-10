@@ -1,29 +1,30 @@
+vcl 4.1;
+
+backend default {
+    .host = "127.0.0.1";
+    .port = "8080";  
+}
+
+acl purge {
+    "127.0.0.1";
+    "localhost";
+}
+
 sub vcl_recv {
     if (req.method == "PURGE") {
         if (!client.ip ~ purge) { return (synth(405, "Not allowed.")); }
         return (purge);
     }
 
-    # Static files
     if (req.url ~ "^/(pub/)?(media|static)/") { return (hash); }
-
-    # Bypass admin, login, REST, GraphQL
-    if (req.url ~ "^/(index.php/)?(rest|graphql|admin|customer|checkout)") { return (pass); }
-
-    # Bypass POST & authorization
-    if (req.http.Authorization || req.method == "POST") { return (pass); }
-
-    # Handle PHPSESSID
+    if (req.method == "POST" || req.http.Authorization) { return (pass); }
     if (req.http.Cookie ~ "PHPSESSID") { return (pass); }
 
-    # Remove other cookies for caching
     unset req.http.Cookie;
-
     return (hash);
 }
 
 sub vcl_backend_response {
-    # Longer TTL for cached pages
     if (beresp.ttl <= 0s || beresp.http.Set-Cookie) {
         set beresp.ttl = 3600s;
     }
@@ -33,9 +34,4 @@ sub vcl_backend_response {
 sub vcl_deliver {
     if (obj.hits > 0) { set resp.http.X-Cache = "HIT"; }
     else { set resp.http.X-Cache = "MISS"; }
-
-    # Add Magento cache debug header
-    if (resp.http.X-Magento-Cache-Debug == "") {
-        set resp.http.X-Magento-Cache-Debug = resp.http.X-Cache;
-    }
 }

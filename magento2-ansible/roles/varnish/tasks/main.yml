@@ -31,9 +31,3 @@
     state: started
     enabled: true
 
-
-
-
-# After deploying magento run this - ``` sudo -u test-ssh php {{ magento2_root }}/bin/magento setup:config:set \
-#   --http-cache-hosts=127.0.0.1:{{ varnish_port }}    
-# /etc/hosts 127.0.0.1  must be set

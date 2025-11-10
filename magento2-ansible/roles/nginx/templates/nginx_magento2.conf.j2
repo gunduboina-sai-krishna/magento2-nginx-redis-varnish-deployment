@@ -6,9 +6,10 @@ server {
     listen 80;
     server_name {{ magento2_domain }};
     set $MAGE_ROOT {{ magento2_home }};
-    set $MAGE_MODE developer;  # can change to production later
+    set $MAGE_MODE developer;  
 
     root $MAGE_ROOT/pub;
+   # return 301 https://$host$request_uri;
 
     index index.php index.html;
     autoindex off;
@@ -40,7 +41,7 @@ server {
 
     location ~ (index|get|static|report|404|503)\.php$ {
         try_files $uri =404;
-        fastcgi_pass fastcgi_backend;
+        fastcgi_pass unix:/run/php/php{{ php_version }}-fpm-{{ php_fpm_pool }}.sock;
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
     }
@@ -74,9 +75,9 @@ server {
 
 server {
     listen 443 ssl;
-    server_name test.mgt.com;
+    server_name {{ magento2_domain }};
 
-    root /var/www/magento2/pub;
+    root {{ magento2_home }}/pub;
     index index.php index.html;
 
     ssl_certificate /etc/ssl/magento2/magento2.crt;
@@ -91,10 +92,11 @@ server {
 
     location ~ \.php$ {
         try_files $uri =404;
-        fastcgi_pass unix:/run/php/php8.3-fpm-magento2.sock;
-        include fastcgi.conf;
+        fastcgi_pass unix:/run/php/php{{ php_version }}-fpm-{{ php_fpm_pool }}.sock;
+        include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-    }
+    }    
+
 }
 
 

@@ -1,7 +1,7 @@
 server {
     listen 8080;
-    server_name pma.mgt.com;
-    root /var/www/magento2/phpmyadmin;
+    server_name {{ php_domain }};
+    root {{ magento2_home }}/phpmyadmin;
 
     index index.php index.html index.htm;
 
@@ -14,7 +14,7 @@ server {
 
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php{{ php_version }}-fpm-magento2.sock;
+        fastcgi_pass unix:/run/php/php{{ php_version }}-fpm-{{ php_fpm_pool }}.sock;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;
     }
