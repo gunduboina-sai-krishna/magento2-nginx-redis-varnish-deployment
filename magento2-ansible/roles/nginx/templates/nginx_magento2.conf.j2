@@ -3,8 +3,20 @@ upstream fastcgi_backend {
 }
 
 server {
-    listen 80;
+    listen 8080;
     server_name {{ magento2_domain }};
+
+    set $redirect_to_https 1;
+    if ($http_x_forwarded_proto = "https") {
+        set $redirect_to_https 0;
+    }
+    if ($http_host = "127.0.0.1") {
+        set $redirect_to_https 0;
+    }
+    if ($redirect_to_https) {
+        return 301 https://$host$request_uri;
+    }  
+    
     set $MAGE_ROOT {{ magento2_home }};
     set $MAGE_MODE developer;  
 
