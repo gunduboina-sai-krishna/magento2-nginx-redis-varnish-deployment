@@ -14,6 +14,7 @@ mysql_config_file: "/etc/mysql/conf.d/magento2.cnf"
 php_fpm_pool: magento2
 php_version: "8.3"
 varnish_port: 80
+php_domain: pma.mgt.com
 
 #magento2 vars:
 magento2_home: /var/www/magento2
@@ -23,7 +24,6 @@ magento2_admin_firstname: Sai
 magento2_admin_lastname: Krishna
 magento2_admin_email: gunduboinasaikrishna@gmail.com
 magento2_admin_user: testadmin
-magento2_admin_password: TestAdmin@123
 
 # Redis vars:
 redis_host: "127.0.0.1"
